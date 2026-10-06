@@ -95,3 +95,7 @@ Use the Harvest Ledger menu to select My Farm or Contracts, a month/year, and a 
 ## Validation
 
 Scripted accounting, persistence, network, harvesting and PF regression tests were run. PF tests cover absence, disabled/uninitialized data, raw-area/display matching, soil/yield/score snapshots, invalid values, multi-field parcels, active-event refresh and preservation of closed history. Real PF gameplay, host/client and dedicated-server testing of this release remains required. Passing TestRunner is not ModHub approval.
+
+## Optional Harvest Diagnostics
+
+[Harvest Diagnostics 1.0.0.3](tools/HarvestDiagnostics/README.md) is a separate troubleshooting helper for production, deposition and pickup accounting. Requires Harvest Ledger. See its guide for the original ZIP download, installation and session-log locations.
