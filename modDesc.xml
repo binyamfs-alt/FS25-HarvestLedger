@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modDesc descVersion="113">
+    <author>BinyamFS</author>
+    <version>1.2.0.5</version>
+    <title>
+        <en>Harvest Ledger</en>
+    </title>
+    <description>
+        <en><![CDATA[Records crop yields and harvested acreage for each farm and its contracts, including borrowed equipment. Monthly and yearly reports show field size, harvested area, volume and yield per area in the player's General Settings units. Supports additional crop types and harvest outputs. Multiplayer ledgers are maintained on the server; players see their own farm's records. Farm managers can finish harvests and export CSV reports to the server savegame folder. A compact movable Harvest Ready HUD lists only owned fields with harvestable crops, using current field growth states. Use the Harvest HUD toggle in the Harvest Ledger menu. Drag the title bar whenever the mouse cursor is visible; scroll over the list for more rows. The HUD toggle can be assigned in Controls; its default is unassigned. Position and visibility are saved locally in the player profile.
+
+Default mouse control: Left Ctrl+Left Alt+H. Press to show the cursor, drag the HUD title bar, then press again to hide the cursor. Works on foot and in vehicles; reassign it in Controls under Harvest Ledger: Toggle mouse cursor.
+
+Changelog 1.2.0.5:
+- Suspend mouse camera movement while the cursor is visible, on foot and in vehicles.
+
+Changelog 1.2.0.4:
+- Add a configurable mouse-cursor toggle for HUD dragging without another mod.
+- Release the cursor on unload if enabled by Harvest Ledger.
+
+Changelog 1.2.0.3:
+- Hide the HUD while no owned fields are harvestable, including during the initial scan.
+
+Changelog 1.2.0.2:
+- Read fresh native field growth states and exclude cut, rolled and withered states for every crop.
+- Preserve earlier harvestable stages defined by each crop, including forage stages.
+
+Changelog 1.2.0.1:
+- Add crop HUD icons and content-sized width; match SAM colors, opacity and font sizes.
+- Always allow title-bar dragging; replace the Move HUD button with the Harvest HUD toggle.
+- Show a green toggle outline when enabled and a black outline when disabled.
+- Add an assignable HUD control with no default shortcut.
+
+Changelog 1.2.0.0:
+- Owned-field Harvest Ready HUD with saved position and scrolling.
+- Display units follow General Settings.
+
+Changelog 1.1.0.0:
+- Optional Precision Farming field size, soil distribution and yield-potential snapshots, with standard-field fallback.
+- Preserve PF metadata in saves, multiplayer snapshots and CSV exports.]]></en>
+        <de><![CDATA[Erfasst Ernteerträge und geerntete Flächen für jeden Hof und seine Aufträge, einschließlich geliehener Geräte. Monatliche und jährliche Berichte zeigen Feldfläche, geerntete Fläche, Volumen und Ertrag pro Fläche in den Einheiten der allgemeinen Spieleinstellungen. Unterstützt zusätzliche Fruchtarten und Ernteprodukte. Im Mehrspieler werden die Daten auf dem Server gespeichert; Spieler sehen die Einträge ihres eigenen Hofs. Hofmanager können Ernten abschließen und CSV-Berichte in den Spielstandordner des Servers exportieren. Ein verschiebbares Ernte-HUD zeigt nur eigene Felder mit erntereifen Früchten anhand des aktuellen Wachstumszustands. Die Schaltfläche Harvest HUD im Harvest-Ledger-Menü schaltet das HUD um. Bei sichtbarem Mauszeiger kann die Titelleiste gezogen und die Liste gescrollt werden. Die HUD-Umschaltung kann in der Spielsteuerung belegt werden; standardmäßig ist sie nicht belegt. Position und Sichtbarkeit werden im lokalen Spielerprofil gespeichert.
+
+Standard-Maussteuerung: Linke Strg+Linke Alt+H. Zum Anzeigen des Mauszeigers drücken, die HUD-Titelleiste ziehen und erneut drücken, um den Mauszeiger auszublenden. Zu Fuß und in Fahrzeugen verfügbar; in der Spielsteuerung unter Harvest Ledger: Mauszeiger umschalten neu belegbar.
+
+Changelog 1.2.0.5:
+- Maus-Kamerabewegung bei sichtbarem Mauszeiger zu Fuß und in Fahrzeugen unterbrechen.
+
+Changelog 1.2.0.4:
+- Belegbare Mauszeiger-Steuerung zum Verschieben des HUD ohne weitere Mods.
+
+Changelog 1.2.0.3:
+- HUD ausblenden, wenn keine eigenen Felder erntbar sind, auch während der ersten Abfrage.
+
+Changelog 1.2.0.2:
+- Aktuelle native Feldzustände lesen; geschnittene, gewalzte und verdorrte Zustände für alle Früchte ausschließen.
+- Frühere erntbare Stufen einschließlich Futterernte gemäß Fruchtdefinition berücksichtigen.
+
+Changelog 1.2.0.1:
+- Fruchtsymbole, inhaltsabhängige Breite und SAM-Farben, Transparenz und Schriftgrößen.
+- Titelleiste jederzeit bei sichtbarem Mauszeiger verschiebbar; Schaltfläche Harvest HUD mit grünem oder schwarzem Rahmen.
+- Belegbare HUD-Steuerung ohne Standard-Tastenkombination.
+
+Changelog 1.2.0.0:
+- Ernte-HUD für eigene Felder mit gespeicherter Position und scrollbarer Liste.
+- Anzeigeeinheiten gemäß allgemeinen Spieleinstellungen.
+
+Changelog 1.1.0.0:
+- Optionale Precision-Farming-Feldfläche, Bodenverteilung und Ertragspotenzial mit Standard-Feldfläche als Rückfall.
+- PF-Daten in Spielständen, Mehrspielerübertragung und CSV-Berichten.]]></de>
+    </description>
+    <iconFilename>icon_HarvestLedger.dds</iconFilename>
+    <multiplayer supported="true"/>
+    <actions>
+        <action name="HL_MOUSE_TOGGLE" category="ONFOOT VEHICLE"/>
+        <action name="HL_READY_TOGGLE" category="ONFOOT VEHICLE"/>
+    </actions>
+    <inputBinding>
+        <actionBinding action="HL_MOUSE_TOGGLE">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_h" axisComponent="+" neutralInput="0" index="1"/>
+        </actionBinding>
+        <actionBinding action="HL_READY_TOGGLE">
+        </actionBinding>
+    </inputBinding>
+    <l10n>
+        <text name="input_HL_MOUSE_TOGGLE">
+            <en>Harvest Ledger: Toggle mouse cursor</en>
+            <de>Harvest Ledger: Mauszeiger umschalten</de>
+        </text>
+        <text name="input_HL_READY_TOGGLE">
+            <en>Toggle Harvest Ready HUD</en>
+            <de>Ernte-HUD umschalten</de>
+        </text>
+    </l10n>
+    <extraSourceFiles>
+        <sourceFile filename="main.lua"/>
+    </extraSourceFiles>
+</modDesc>

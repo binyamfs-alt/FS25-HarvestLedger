@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GUI name="LedgerPage">
+    <GuiElement profile="hlContainer">
+        <GuiElement profile="fs25_menuHeaderPanel" size="0.805 0.1" position="0 0.074">
+            <Bitmap profile="fs25_menuHeaderIconBg">
+                <Bitmap profile="fs25_menuHeaderIcon" id="ledgerHeaderIcon" imageColor="0 0 0 1"/>
+            </Bitmap>
+            <Text profile="fs25_menuHeaderTitle" text="Harvest Ledger"/>
+        </GuiElement>
+        <ThreePartBitmap profile="fs25_lineSeparatorTopHighlighted" size="1594px 0.003"/>
+        <GuiElement anchor="bottomLeft" size="1594px 0.14" position="0 0.56">
+            <Button profile="hlButton" id="farmButton" text="My Farm" onClick="onFarm" position="0px 100px"/>
+            <Button profile="hlButton" id="contractButton" text="Contracts" onClick="onContracts" position="190px 100px"/>
+            <Button profile="hlButton" id="readyHudButton" text="Harvest HUD" onClick="onReadyHud" position="390px 100px"/>
+            <Button profile="hlButton" id="exportButton" text="Export CSV" onClick="onExport" position="1194px 100px"/>
+            <Button profile="hlButton" id="finishButton" text="Finish harvest" onClick="onFinishHarvest" position="1384px 100px"/>
+            <Button profile="hlArrow" id="monthPrevious" text="&lt;" onClick="onPreviousMonth" position="570px 54px"/>
+            <Text profile="hlHeading" id="monthTitle" text="" position="630px 54px" size="270px 38px" textAlignment="center"/>
+            <Button profile="hlArrow" id="monthNext" text="&gt;" onClick="onNextMonth" position="910px 54px"/>
+            <Button profile="hlArrow" id="yearPrevious" text="&lt;" onClick="onPreviousYear" position="1045px 54px"/>
+            <Text profile="hlHeading" id="yearTitle" text="" position="1100px 54px" size="200px 38px" textAlignment="center"/>
+            <Button profile="hlArrow" id="yearNext" text="&gt;" onClick="onNextYear" position="1310px 54px"/>
+            <Text profile="hlHeading" id="monthTotal" text="" position="12px 16px" size="1570px 28px"/>
+        </GuiElement>
+        <GuiElement anchor="bottomLeft" size="1594px 32px" position="0 0.53">
+            <Text profile="hlColumn" id="headlabel" text="Fill type / Field" position="12px 0px" size="660px 28px"/>
+            <Text profile="hlColumn" id="headfieldAcres" text="Field size" position="680px 0px" size="190px 28px" textAlignment="right"/>
+            <Text profile="hlColumn" id="headharvestAcres" text="Harvested area" position="880px 0px" size="220px 28px" textAlignment="right"/>
+            <Text profile="hlColumn" id="headliters" text="Yield" position="1110px 0px" size="250px 28px" textAlignment="right"/>
+            <Text profile="hlColumn" id="headrate" text="Yield / area" position="1370px 0px" size="190px 28px" textAlignment="right"/>
+        </GuiElement>
+        <GuiElement anchor="bottomLeft" size="1594px 0.30" position="0 0.23">
+            <SmoothList id="monthlyList" anchor="bottomLeft" size="1594px 0.30" visible="true">
+                <ListItem profile="hlRow" name="default" onClick="onSelectField">
+                    <Text profile="hlCell" name="label" position="12px 0" size="660px 28px"/>
+                    <Text profile="hlNumber" name="fieldAcres" position="680px 0" size="190px 28px"/>
+                    <Text profile="hlNumber" name="harvestAcres" position="880px 0" size="220px 28px"/>
+                    <Text profile="hlNumber" name="liters" position="1110px 0" size="250px 28px"/>
+                    <Text profile="hlNumber" name="rate" position="1370px 0" size="190px 28px"/>
+                </ListItem>
+            </SmoothList>
+            <ThreePartBitmap profile="fs25_listSliderBox" anchor="topRight">
+                <Slider profile="fs25_listSlider" dataElementId="monthlyList"/>
+            </ThreePartBitmap>
+        </GuiElement>
+        <GuiElement anchor="bottomLeft" position="0 0" size="1594px 0.22">
+            <ThreePartBitmap profile="fs25_lineSeparatorTopHighlighted" anchor="topLeft" size="1594px 0.003"/>
+            <Text profile="hlHeading" id="footerTitle" text="" position="12px 202px" size="1000px 28px"/>
+            <Button profile="hlArrow" id="footerPrevious" text="&lt;" onClick="onFooterPrevious" position="1380px 190px"/>
+            <Text profile="hlSmall" id="footerPages" text="" position="1434px 195px" size="80px 28px" textAlignment="center"/>
+            <Button profile="hlArrow" id="footerNext" text="&gt;" onClick="onFooterNext" position="1520px 190px"/>
+            <Text profile="hlColumn" id="yearHeadlabel" text="Fill type" position="12px 166px" size="660px 24px"/>
+            <Text profile="hlColumn" id="yearHeadharvestAcres" text="Harvested area" position="880px 166px" size="220px 24px" textAlignment="right"/>
+            <Text profile="hlColumn" id="yearHeadliters" text="Yield" position="1110px 166px" size="250px 24px" textAlignment="right"/>
+            <Text profile="hlColumn" id="yearHeadrate" text="Yield / area" position="1370px 166px" size="190px 24px" textAlignment="right"/>
+            <Text profile="hlText" id="yearProduct1" text="" position="12px 137px" size="660px 26px"/>
+            <Text profile="hlNumber" id="yearArea1" text="" position="880px 137px" size="220px 26px"/>
+            <Text profile="hlNumber" id="yearLiters1" text="" position="1110px 137px" size="250px 26px"/>
+            <Text profile="hlNumber" id="yearRate1" text="" position="1370px 137px" size="190px 26px"/>
+            <Text profile="hlText" id="yearProduct2" text="" position="12px 110px" size="660px 26px"/>
+            <Text profile="hlNumber" id="yearArea2" text="" position="880px 110px" size="220px 26px"/>
+            <Text profile="hlNumber" id="yearLiters2" text="" position="1110px 110px" size="250px 26px"/>
+            <Text profile="hlNumber" id="yearRate2" text="" position="1370px 110px" size="190px 26px"/>
+            <Text profile="hlText" id="yearProduct3" text="" position="12px 83px" size="660px 26px"/>
+            <Text profile="hlNumber" id="yearArea3" text="" position="880px 83px" size="220px 26px"/>
+            <Text profile="hlNumber" id="yearLiters3" text="" position="1110px 83px" size="250px 26px"/>
+            <Text profile="hlNumber" id="yearRate3" text="" position="1370px 83px" size="190px 26px"/>
+            <Text profile="hlText" id="yearProduct4" text="" position="12px 56px" size="660px 26px"/>
+            <Text profile="hlNumber" id="yearArea4" text="" position="880px 56px" size="220px 26px"/>
+            <Text profile="hlNumber" id="yearLiters4" text="" position="1110px 56px" size="250px 26px"/>
+            <Text profile="hlNumber" id="yearRate4" text="" position="1370px 56px" size="190px 26px"/>
+            <Text profile="hlColumn" id="yearAll" text="" position="12px 28px" size="1570px 25px"/>
+            <Text profile="hlSmall" id="selectionHint" text="" position="12px 5px" size="1570px 22px"/>
+        </GuiElement>
+    </GuiElement>
+</GUI>
