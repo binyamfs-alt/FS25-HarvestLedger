@@ -23,9 +23,14 @@ Passed:
 - GIANTS TestRunner 0.9.22: PASS for the final ZIP. XML, Lua, modDesc and texture
   checks passed. GUI editor subprocesses were skipped; this mod has no I3D files.
 
-Engine APIs were emulated in the Lua runtime tests. This build has not been
-loaded into a live Farming Simulator 25 session, so the actual menu appearance
-and live multiplayer session behavior still need an in-game check.
+Live single-player testing confirmed by the user on October 6, 2026:
+- Fields can be hidden and restored through the in-game menu, with the HUD updating correctly.
+- Exclusions persisted after saving and reloading.
+- The FS25 log shows version 1.2.0.6 loading in the recent sessions with no Lua errors or Harvest Ledger warnings.
+- The saved HUD settings contain fields 7, 8, 9, 11, and 29 for farm 1.
+
+Multiplayer runtime tests use emulated engine APIs. Live multiplayer testing
+remains pending because a multiplayer session is not currently available.
 
 Installation: follow INSTALL.txt. The game was running during this task;
 the installed mod and savegame were not replaced. The supplied save config
