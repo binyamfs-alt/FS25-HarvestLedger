@@ -7,6 +7,7 @@ HarvestLedger = {
 source(g_currentModDirectory .. "scripts/LedgerData.lua")
 source(g_currentModDirectory .. "scripts/LedgerPF.lua")
 source(g_currentModDirectory .. "scripts/LedgerStorage.lua")
+source(g_currentModDirectory .. "scripts/LedgerReadyHudSettings.lua")
 source(g_currentModDirectory .. "scripts/LedgerNetwork.lua")
 source(g_currentModDirectory .. "scripts/LedgerHooks.lua")
 source(g_currentModDirectory .. "scripts/LedgerUnits.lua")
@@ -19,6 +20,7 @@ function HarvestLedger:loadMap()
     self.readOnly = false
     self.warnings, self.disabledObservers = {}, {}
     self.data = LedgerData.new()
+    self.readyHudIgnored = {}
     self.hookedVehicles = setmetatable({}, { __mode = "k" })
     self.pendingCuts = setmetatable({}, { __mode = "k" })
     self.locationCache = {}
@@ -28,6 +30,7 @@ function HarvestLedger:loadMap()
     self.clientRevision, self.pendingSnapshot, self.requestId, self.requestTimes = nil, nil, 0, nil
     if mission:getIsServer() then
         self:loadData()
+        self:loadReadyHudSettings()
     end
     self.gameYear, self.gameMonth = self:getDate()
     if mission:getIsServer() then

@@ -188,6 +188,11 @@ function HarvestLedgerSnapshotEvent:writeStream(streamId, connection)
         writeRecord(streamId, self.value)
     elseif self.kind == 3 then
         streamWriteString(streamId, self.value)
+    elseif self.kind == 4 then
+        streamWriteUInt32(streamId, #self.value)
+        for _, number in ipairs(self.value) do
+            streamWriteUInt32(streamId, number)
+        end
     end
 end
 function HarvestLedgerSnapshotEvent:readStream(streamId, connection)
@@ -203,6 +208,11 @@ function HarvestLedgerSnapshotEvent:readStream(streamId, connection)
         self.value = readRecord(streamId)
     elseif self.kind == 3 then
         self.value = streamReadString(streamId)
+    elseif self.kind == 4 then
+        self.value = {}
+        for i = 1, readCount(streamId) do
+            self.value[i] = streamReadUInt32(streamId)
+        end
     end
     self:run(connection)
 end
@@ -261,7 +271,7 @@ function H:handleRequest(request, connection)
     local message
     if request.command ~= 0 then
         if not self:canManageLedger(farmId, connection, user) then
-            message = "Only a farm manager can finish harvests or export reports."
+            message = "Only a farm manager can change HUD fields, finish harvests or export reports."
         elseif self.readOnly then
             message = "The saved ledger is invalid; changes are disabled to protect it."
         elseif request.command == 1 and (request.scope == "farm" or request.scope == "contract") then
@@ -276,6 +286,26 @@ function H:handleRequest(request, connection)
             local ok = self:exportCSV(farmId)
             message = ok and "CSV reports exported to the server savegame folder."
                 or "Export failed; see the server log."
+        elseif request.command == 3 or request.command == 4 then
+            local number = tonumber(request.fieldKey)
+            local owned = false
+            for key, field in pairs((g_fieldManager and g_fieldManager.fields) or {}) do
+                local id = field.getId and field:getId() or key
+                if tonumber(id) == number and field.farmland and field.farmland.farmId == farmId
+                    and field.currentMission == nil then
+                    owned = true
+                    break
+                end
+            end
+            if self.readyHudSettingsReadOnly then
+                message = "HUD field settings could not be read; changes are disabled to protect them."
+            elseif owned and number and number > 0 and number <= 2147483647 and number == math.floor(number) then
+                self:setReadyHudFieldIgnored(number, request.command == 3, farmId)
+                message = "Field " .. tostring(number) .. (request.command == 3 and " hidden from" or " shown in")
+                    .. " Harvest Ready HUD. Save the game to keep this change."
+            else
+                message = "Select a field owned by your farm."
+            end
         else
             return
         end
@@ -296,6 +326,7 @@ function H:handleRequest(request, connection)
         for _, event in ipairs(events) do
             connection:sendEvent(HarvestLedgerSnapshotEvent.new(1, farmId, request.requestId, event))
         end
+        connection:sendEvent(HarvestLedgerSnapshotEvent.new(4, farmId, request.requestId, self:getReadyHudIgnoredFields(farmId)))
         connection:sendEvent(HarvestLedgerSnapshotEvent.new(2, farmId, request.requestId))
     elseif not connection and self.page and request.command ~= 0 then
         self.page:refresh()
@@ -311,6 +342,7 @@ function H:requestAction(command, scope, fieldKey)
         self.clientRevision, self.pendingSnapshot, self.actionMessage = nil, nil, nil
         if not self:isServer() then
             self.data = LedgerData.new()
+            self.readyHudIgnored = {}
         end
     end
     self.viewFarmId = farmId
@@ -368,6 +400,11 @@ function H:acceptSnapshot(packet)
             end
         elseif packet.kind == 2 then
             if #pending.data.events == pending.expected then
+                if pending.ignored then
+                    self.readyHudIgnored = self.readyHudIgnored or {}
+                    self.readyHudIgnored[packet.farmId] = pending.ignored
+                    self:refreshReadyHudFields()
+                end
                 pending.data.revision = pending.revision
                 self.data, self.clientRevision = pending.data, pending.revision
                 if self.page then
@@ -378,6 +415,13 @@ function H:acceptSnapshot(packet)
                 end
             end
             self.pendingSnapshot = nil
+        elseif packet.kind == 4 then
+            pending.ignored = {}
+            for _, number in ipairs(packet.value) do
+                if number > 0 and number <= 2147483647 and number == math.floor(number) then
+                    pending.ignored[number] = true
+                end
+            end
         end
     end
 end
@@ -389,12 +433,13 @@ function H:updateNetwork(dt)
         self.pollElapsed = 2000
         if not self:isServer() then
             self.data = LedgerData.new()
+            self.readyHudIgnored = {}
         end
         if self.page then
             self.page:refresh()
         end
     end
-    if self.page and self.page.ledgerOpen and farmId > 0 then
+    if farmId > 0 and ((self.page and self.page.ledgerOpen) or (not self:isServer() and self.readyHud)) then
         self.pollElapsed = (self.pollElapsed or 0) + dt
         if self.pollElapsed >= 2000 then
             self.pollElapsed = 0

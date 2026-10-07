@@ -1,4 +1,4 @@
-# Harvest Ledger 1.2.0.5
+# Harvest Ledger 1.2.0.6
 
 ## Harvest Ready HUD
 
@@ -16,6 +16,36 @@ The HUD stays hidden while no owned fields are harvest-ready, including during t
 
 Press **Left Ctrl+Left Alt+H** or reassign **Harvest Ledger: Toggle mouse cursor** in Controls. Press it to show the cursor, drag the HUD title bar, then press it again to resume camera control. It works on foot and in vehicles. No other cursor mod is required. The default was checked against this player's saved bindings.
 
+## Harvest Ready HUD field exclusions
+
+Open Harvest Ledger and click **HUD fields**. Select any owned field and click
+**Hide field** to exclude it from the Harvest Ready HUD, or **Show field** to restore
+it. The view includes owned fields without harvest history and fields that are
+not currently ready. Click **My Farm**, **Contracts**, or **HUD fields** again to
+return to reports. A shown field appears in the HUD only when its live crop state
+is harvestable. The Harvest HUD on/off control still works as before.
+
+Save the game to persist changes. Settings are stored in
+`harvestLedgerReadyHud.xml` alongside `harvestLedger.xml` in that savegame folder.
+Each farm has its own list. Other saves start with an empty list. Position and
+visibility remain local profile preferences. These settings never change field
+ownership, harvest measurements, history, contracts, CSV exports, or totals.
+
+In multiplayer, only farm managers can change their own farm's owned fields.
+The server stores the list and sends it to clients, including while the ledger
+menu is closed. Clients wait for the initial server settings before displaying
+HUD rows. Ownership and contract checks still apply. Hide/Show uses explicit
+desired states, so repeated requests cannot accidentally reverse a change.
+
+Invalid/unsupported settings are not overwritten; the game log reports the
+problem. Normal saves stage and verify the settings, preserving a `.bak` copy.
+An empty list is an intentional reset and remains empty after saving/reloading.
+
+For this player's Alma save (savegame3, farm 1), the separately supplied
+`harvestLedgerReadyHud.xml` starts with fields 7, 8, 9, 11, and 29 hidden. Install
+that file only in that save while the game is closed. Those field numbers are
+not defaults in the mod or any other map/save.
+
 ## Units
 
 All displayed field sizes, harvested areas, volumes and yield rates follow the local player's General Settings, using built-in I18N conversions and formatters. Changing units refreshes an open ledger. No separate HL unit setting.
@@ -29,6 +59,11 @@ Replace the existing FS25_z_HarvestLedger.zip with this archive while the game i
 Mouse camera movement pauses while the cursor is visible, on foot and in vehicles. Keyboard and controller camera input remain available. Hiding the cursor immediately restores mouse look.
 
 ## Changelog
+
+### 1.2.0.6
+
+- Per-save, per-farm Harvest Ready HUD field exclusions and an owned-field Show/Hide menu.
+- Server-authorized multiplayer changes and synchronization.
 
 ### 1.2.0.5
 

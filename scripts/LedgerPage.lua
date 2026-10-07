@@ -70,6 +70,8 @@ function LedgerPage:styleButtons()
         "farmButton",
         "contractButton",
         "readyHudButton",
+        "hudFieldsButton",
+        "hudFieldToggleButton",
         "exportButton",
         "finishButton",
         "monthPrevious",
@@ -85,6 +87,7 @@ function LedgerPage:styleButtons()
             local active = (id == "farmButton" and self.scope == "farm")
                 or (id == "contractButton" and self.scope == "contract")
                 or (id == "readyHudButton" and HarvestLedger.readyHud and HarvestLedger.readyHud.visible)
+                or (id == "hudFieldsButton" and self.hudFields)
             -- Explicit paths also allow the ModHub file scanner to find these assets.
             local textures = {
                 buttonWide = {
@@ -127,6 +130,26 @@ function LedgerPage:refresh()
     self.units = HarvestLedger:unitSignature()
     self:setText("readyHudButton", "Harvest HUD")
     self:styleButtons()
+    for _, id in ipairs({ "monthPrevious", "monthNext", "yearPrevious", "yearNext", "monthTitle", "yearTitle", "finishButton" }) do
+        local element = self:getDescendantById(id)
+        if element then
+            element:setVisible(not self.hudFields)
+        end
+    end
+    local toggle = self:getDescendantById("hudFieldToggleButton")
+    if toggle then
+        toggle:setVisible(self.hudFields == true)
+    end
+    self:setText("headlabel", self.hudFields and "Owned field" or "Fill type / Field")
+    self:setText("headfieldAcres", self.hudFields and "" or "Field size")
+    self:setText("headharvestAcres", self.hudFields and "Harvest Ready HUD" or "Harvested area")
+    self:setText("headliters", self.hudFields and "" or "Yield")
+    self:setText("headrate", self.hudFields and "" or "Yield / area")
+    if self.hudFields then
+        self:refreshHudFields()
+        self:refreshFooter()
+        return
+    end
     self.selectedFieldKey = nil
     self:setText("monthTitle", months[self.month])
     self:setText("yearTitle", "Year " .. self.year)
@@ -167,6 +190,49 @@ function LedgerPage:refresh()
     self:setText("selectionHint", "Select a field row to finish its harvest. The next cut starts a new event.")
     self.list:reloadData()
     self:refreshFooter()
+end
+
+function LedgerPage:refreshHudFields()
+    self.rows, self.selectedFieldKey = {}, nil
+    local farmId = HarvestLedger:getViewFarmId()
+    local ignoredCount = 0
+    for key, field in pairs((g_fieldManager and g_fieldManager.fields) or {}) do
+        if farmId > 0 and field.farmland and field.farmland.farmId == farmId and field.currentMission == nil then
+            local number = field.getId and field:getId() or key
+            local ignored = HarvestLedger:isReadyHudFieldIgnored(number, farmId)
+            self.rows[#self.rows + 1] = { label = "Field " .. tostring(number), hudFieldNumber = number, ignored = ignored }
+            ignoredCount = ignoredCount + (ignored and 1 or 0)
+        end
+    end
+    table.sort(self.rows, function(a, b)
+        return tonumber(a.hudFieldNumber) < tonumber(b.hudFieldNumber)
+    end)
+    self:setText("monthTotal", string.format("Harvest Ready HUD: %d owned fields · %d hidden. Harvest records and reports are unaffected.", #self.rows, ignoredCount))
+    if #self.rows == 0 then
+        self.rows[1] = { label = "No fields owned by your current farm.", empty = true }
+    end
+    self.selectedHudFieldNumber = nil
+    self:setText("hudFieldToggleButton", "Select a field")
+    local button = self:getDescendantById("hudFieldToggleButton")
+    if button then
+        button:setDisabled(true)
+    end
+    self:setText("selectionHint", "Select an owned field, then Show field or Hide field. Save the game to keep changes. Farm managers only.")
+    self.list:reloadData()
+end
+
+function LedgerPage:onHudFields()
+    self.hudFields = not self.hudFields
+    self:refresh()
+    FocusManager:setFocus(self.list)
+end
+
+function LedgerPage:onToggleHudField()
+    if not self.hudFields or not self.selectedHudFieldNumber then
+        return
+    end
+    local ignored = HarvestLedger:isReadyHudFieldIgnored(self.selectedHudFieldNumber)
+    HarvestLedger:requestAction(ignored and 4 or 3, "farm", tostring(self.selectedHudFieldNumber))
 end
 
 function LedgerPage:refreshFooter()
@@ -226,10 +292,12 @@ function LedgerPage:onNextYear()
     self:refresh()
 end
 function LedgerPage:onFarm()
+    self.hudFields = false
     self.scope, self.footerPage = "farm", 1
     self:refresh()
 end
 function LedgerPage:onContracts()
+    self.hudFields = false
     self.scope, self.footerPage = "contract", 1
     self:refresh()
 end
@@ -243,6 +311,17 @@ function LedgerPage:onFooterNext()
 end
 function LedgerPage:onSelectField(element)
     local row = self.rows[element.indexInSection]
+    if self.hudFields then
+        self.selectedHudFieldNumber = row and row.hudFieldNumber
+        local ignored = self.selectedHudFieldNumber and HarvestLedger:isReadyHudFieldIgnored(self.selectedHudFieldNumber)
+        self:setText("hudFieldToggleButton", self.selectedHudFieldNumber and (ignored and "Show field" or "Hide field") or "Select a field")
+        local button = self:getDescendantById("hudFieldToggleButton")
+        if button then
+            button:setDisabled(self.selectedHudFieldNumber == nil)
+        end
+        self:setText("selectionHint", self.selectedHudFieldNumber and (row.label .. " selected. " .. (ignored and "Show" or "Hide") .. " it in the Harvest Ready HUD only.") or "Select an owned field.")
+        return
+    end
     self.selectedFieldKey = row and row.fieldKey
     self:setText(
         "selectionHint",
@@ -251,7 +330,7 @@ function LedgerPage:onSelectField(element)
     )
 end
 function LedgerPage:onFinishHarvest()
-    if not self.selectedFieldKey then
+    if self.hudFields or not self.selectedFieldKey then
         return
     end
     HarvestLedger:requestAction(1, self.scope, self.selectedFieldKey)
@@ -282,6 +361,13 @@ function LedgerPage:populateCellForItemInSection(list, section, index, item)
         end
     end
     text("label", row.label)
+    if self.hudFields then
+        text("fieldAcres", "")
+        text("harvestAcres", row.empty and "" or (row.ignored and "Hidden" or "Shown"))
+        text("liters", "")
+        text("rate", "")
+        return
+    end
     text("fieldAcres", row.empty and "" or HarvestLedger:formatFieldSize(row.fieldAreaHa, row.fieldAcres))
     text("harvestAcres", row.empty and "" or HarvestLedger:displayArea(row.areaSqm))
     text("liters", row.empty and "" or HarvestLedger:displayVolume(row.liters))

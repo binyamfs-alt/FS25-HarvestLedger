@@ -73,8 +73,9 @@ function Hud:beginScan()
     self.jobs, self.pendingRows = {}, {}
     self.farmId = g_currentMission:getFarmId()
     for key, field in pairs(g_fieldManager.fields or {}) do
-        if self:isOwned(field) then
-            self.jobs[#self.jobs + 1] = { field = field, number = field.getId and field:getId() or key }
+        local number = field.getId and field:getId() or key
+        if self:isOwned(field) and not self.ledger:isReadyHudFieldIgnored(number) then
+            self.jobs[#self.jobs + 1] = { field = field, number = number }
         end
     end
     self.jobIndex = 1
@@ -84,7 +85,7 @@ function Hud:scanStep()
     local job = self.jobs[self.jobIndex]
     if not job then
         for i = #self.pendingRows, 1, -1 do
-            if not self:isOwned(self.pendingRows[i].field) then
+            if not self:isOwned(self.pendingRows[i].field) or self.ledger:isReadyHudFieldIgnored(self.pendingRows[i].number) then
                 table.remove(self.pendingRows, i)
             end
         end
@@ -99,7 +100,7 @@ function Hud:scanStep()
         self.elapsed = 0
         return
     end
-    if self:isOwned(job.field) then
+    if self:isOwned(job.field) and not self.ledger:isReadyHudFieldIgnored(job.number) then
         local x, z = job.field:getCenterOfFieldWorldPosition()
         -- A new state object is updated from the live terrain. Do not use the
         -- cached NPC field state or infer readiness from isolated polygon pixels.
@@ -163,6 +164,11 @@ function Hud:stageStatus(fruit, state)
 end
 
 function Hud:update(dt)
+    -- Wait for the server's save-specific settings before showing client rows.
+    if not self.ledger:isServer() and self.ledger.clientRevision == nil then
+        self.rows, self.jobs = {}, nil
+        return
+    end
     if g_gui:getIsGuiVisible() or not g_inputBinding:getShowMouseCursor() then
         self.dragging = false
     end
@@ -172,7 +178,7 @@ function Hud:update(dt)
     end
     -- Ownership changes must remove rows immediately, even mid scan.
     for i = #self.rows, 1, -1 do
-        if not self:isOwned(self.rows[i].field) then
+        if not self:isOwned(self.rows[i].field) or self.ledger:isReadyHudFieldIgnored(self.rows[i].number) then
             table.remove(self.rows, i)
         end
     end

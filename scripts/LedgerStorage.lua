@@ -250,6 +250,7 @@ function H:saveData()
     if not installedValid then
         error("Replacement ledger could not be verified")
     end
+    self:saveReadyHudSettings()
     -- Keep the bounded staging file: FS25 denies mod deleteFile here and logs
     -- a permission stack trace. The next save overwrites this same file.
     local farms = {}
