@@ -12,6 +12,8 @@
             <Button profile="hlButton" id="farmButton" text="My Farm" onClick="onFarm" position="0px 100px"/>
             <Button profile="hlButton" id="contractButton" text="Contracts" onClick="onContracts" position="190px 100px"/>
             <Button profile="hlButton" id="readyHudButton" text="Harvest HUD" onClick="onReadyHud" position="390px 100px"/>
+            <Button profile="hlButton" id="hudFieldsButton" text="HUD fields" onClick="onHudFields" position="590px 100px"/>
+            <Button profile="hlButton" id="hudFieldToggleButton" text="Select a field" onClick="onToggleHudField" position="790px 100px" visible="false"/>
             <Button profile="hlButton" id="exportButton" text="Export CSV" onClick="onExport" position="1194px 100px"/>
             <Button profile="hlButton" id="finishButton" text="Finish harvest" onClick="onFinishHarvest" position="1384px 100px"/>
             <Button profile="hlArrow" id="monthPrevious" text="&lt;" onClick="onPreviousMonth" position="570px 54px"/>

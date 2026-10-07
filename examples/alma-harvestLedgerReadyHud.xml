@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<harvestLedgerReadyHud version="1">
+    <farm id="1">
+        <ignoredField id="7"/>
+        <ignoredField id="8"/>
+        <ignoredField id="9"/>
+        <ignoredField id="11"/>
+        <ignoredField id="29"/>
+    </farm>
+</harvestLedgerReadyHud>

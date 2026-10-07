@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modDesc descVersion="113">
     <author>BinyamFS</author>
-    <version>1.2.0.5</version>
+    <version>1.2.0.6</version>
     <title>
         <en>Harvest Ledger</en>
     </title>
@@ -9,6 +9,10 @@
         <en><![CDATA[Records crop yields and harvested acreage for each farm and its contracts, including borrowed equipment. Monthly and yearly reports show field size, harvested area, volume and yield per area in the player's General Settings units. Supports additional crop types and harvest outputs. Multiplayer ledgers are maintained on the server; players see their own farm's records. Farm managers can finish harvests and export CSV reports to the server savegame folder. A compact movable Harvest Ready HUD lists only owned fields with harvestable crops, using current field growth states. Use the Harvest HUD toggle in the Harvest Ledger menu. Drag the title bar whenever the mouse cursor is visible; scroll over the list for more rows. The HUD toggle can be assigned in Controls; its default is unassigned. Position and visibility are saved locally in the player profile.
 
 Default mouse control: Left Ctrl+Left Alt+H. Press to show the cursor, drag the HUD title bar, then press again to hide the cursor. Works on foot and in vehicles; reassign it in Controls under Harvest Ledger: Toggle mouse cursor.
+
+Changelog 1.2.0.6:
+- Add HUD fields with per-save, per-farm Show/Hide controls. Harvest records and reports are unaffected.
+- Server-owned exclusions persist with the save and synchronize to multiplayer clients.
 
 Changelog 1.2.0.5:
 - Suspend mouse camera movement while the cursor is visible, on foot and in vehicles.
@@ -40,6 +44,9 @@ Changelog 1.1.0.0:
         <de><![CDATA[Erfasst Ernteerträge und geerntete Flächen für jeden Hof und seine Aufträge, einschließlich geliehener Geräte. Monatliche und jährliche Berichte zeigen Feldfläche, geerntete Fläche, Volumen und Ertrag pro Fläche in den Einheiten der allgemeinen Spieleinstellungen. Unterstützt zusätzliche Fruchtarten und Ernteprodukte. Im Mehrspieler werden die Daten auf dem Server gespeichert; Spieler sehen die Einträge ihres eigenen Hofs. Hofmanager können Ernten abschließen und CSV-Berichte in den Spielstandordner des Servers exportieren. Ein verschiebbares Ernte-HUD zeigt nur eigene Felder mit erntereifen Früchten anhand des aktuellen Wachstumszustands. Die Schaltfläche Harvest HUD im Harvest-Ledger-Menü schaltet das HUD um. Bei sichtbarem Mauszeiger kann die Titelleiste gezogen und die Liste gescrollt werden. Die HUD-Umschaltung kann in der Spielsteuerung belegt werden; standardmäßig ist sie nicht belegt. Position und Sichtbarkeit werden im lokalen Spielerprofil gespeichert.
 
 Standard-Maussteuerung: Linke Strg+Linke Alt+H. Zum Anzeigen des Mauszeigers drücken, die HUD-Titelleiste ziehen und erneut drücken, um den Mauszeiger auszublenden. Zu Fuß und in Fahrzeugen verfügbar; in der Spielsteuerung unter Harvest Ledger: Mauszeiger umschalten neu belegbar.
+
+Changelog 1.2.0.6:
+- HUD-Felder pro Spielstand und Hof ein-/ausblenden; Ernteaufzeichnungen bleiben unverändert.
 
 Changelog 1.2.0.5:
 - Maus-Kamerabewegung bei sichtbarem Mauszeiger zu Fuß und in Fahrzeugen unterbrechen.
