@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modDesc descVersion="113">
     <author>BinyamFS</author>
-    <version>1.2.0.6</version>
+    <version>1.2.0.7</version>
     <title>
         <en>Harvest Ledger</en>
+        <de>Erntebuch</de>
     </title>
     <description>
         <en><![CDATA[Records crop yields and harvested acreage for each farm and its contracts, including borrowed equipment. Monthly and yearly reports show field size, harvested area, volume and yield per area in the player's General Settings units. Supports additional crop types and harvest outputs. Multiplayer ledgers are maintained on the server; players see their own farm's records. Farm managers can finish harvests and export CSV reports to the server savegame folder. A compact movable Harvest Ready HUD lists only owned fields with harvestable crops, using current field growth states. Use the Harvest HUD toggle in the Harvest Ledger menu. Drag the title bar whenever the mouse cursor is visible; scroll over the list for more rows. The HUD toggle can be assigned in Controls; its default is unassigned. Position and visibility are saved locally in the player profile.
 
 Default mouse control: Left Ctrl+Left Alt+H. Press to show the cursor, drag the HUD title bar, then press again to hide the cursor. Works on foot and in vehicles; reassign it in Controls under Harvest Ledger: Toggle mouse cursor.
+
+Changelog 1.2.0.7:
+- Complete German menu, HUD, calendar and action-message translations.
 
 Changelog 1.2.0.6:
 - Add HUD fields with per-save, per-farm Show/Hide controls. Harvest records and reports are unaffected.
@@ -95,6 +99,314 @@ Changelog 1.1.0.0:
         <text name="input_HL_READY_TOGGLE">
             <en>Toggle Harvest Ready HUD</en>
             <de>Ernte-HUD umschalten</de>
+        </text>
+        <text name="hl_pageTitle">
+            <en>Harvest Ledger</en>
+            <de>Erntebuch</de>
+        </text>
+        <text name="hl_farm">
+            <en>My Farm</en>
+            <de>Mein Hof</de>
+        </text>
+        <text name="hl_contracts">
+            <en>Contracts</en>
+            <de>Aufträge</de>
+        </text>
+        <text name="hl_harvestHud">
+            <en>Harvest HUD</en>
+            <de>Ernte-HUD</de>
+        </text>
+        <text name="hl_hudFields">
+            <en>HUD fields</en>
+            <de>HUD-Felder</de>
+        </text>
+        <text name="hl_selectField">
+            <en>Select a field</en>
+            <de>Feld auswählen</de>
+        </text>
+        <text name="hl_export">
+            <en>Export CSV</en>
+            <de>CSV exportieren</de>
+        </text>
+        <text name="hl_finish">
+            <en>Finish harvest</en>
+            <de>Ernte abschließen</de>
+        </text>
+        <text name="hl_fillField">
+            <en>Fill type / Field</en>
+            <de>Produkt / Feld</de>
+        </text>
+        <text name="hl_fieldSize">
+            <en>Field size</en>
+            <de>Feldfläche</de>
+        </text>
+        <text name="hl_harvestedArea">
+            <en>Harvested area</en>
+            <de>Geerntete Fläche</de>
+        </text>
+        <text name="hl_yield">
+            <en>Yield</en>
+            <de>Ertrag</de>
+        </text>
+        <text name="hl_rate">
+            <en>Yield / area</en>
+            <de>Ertrag / Fläche</de>
+        </text>
+        <text name="hl_fillType">
+            <en>Fill type</en>
+            <de>Produkt</de>
+        </text>
+        <text name="hl_ownedField">
+            <en>Owned field</en>
+            <de>Eigenes Feld</de>
+        </text>
+        <text name="hl_readyHud">
+            <en>Harvest Ready HUD</en>
+            <de>Erntereife-HUD</de>
+        </text>
+        <text name="hl_ready">
+            <en>Harvest Ready</en>
+            <de>Erntereif</de>
+        </text>
+        <text name="hl_yearPrefix">
+            <en>Year </en>
+            <de>Jahr </de>
+        </text>
+        <text name="hl_totalSuffix">
+            <en> — TOTAL</en>
+            <de> — GESAMT</de>
+        </text>
+        <text name="hl_emptyMonth">
+            <en>No harvests recorded this month.</en>
+            <de>Keine Ernten für diesen Monat erfasst.</de>
+        </text>
+        <text name="hl_monthlyPrefix">
+            <en>Monthly total: </en>
+            <de>Monatssumme: </de>
+        </text>
+        <text name="hl_harvestedSuffix">
+            <en> harvested</en>
+            <de> geerntet</de>
+        </text>
+        <text name="hl_finishHint">
+            <en>Select a field row to finish its harvest. The next cut starts a new event.</en>
+            <de>Feldzeile wählen, um die Ernte abzuschließen. Der nächste Schnitt beginnt einen neuen Eintrag.</de>
+        </text>
+        <text name="hl_fieldPrefix">
+            <en>Field </en>
+            <de>Feld </de>
+        </text>
+        <text name="hl_fieldsSummary">
+            <en>Harvest Ready HUD: %d owned fields · %d hidden. Harvest records and reports are unaffected.</en>
+            <de>Erntereife-HUD: %d eigene Felder · %d ausgeblendet. Ernteaufzeichnungen und Berichte bleiben unverändert.</de>
+        </text>
+        <text name="hl_noFields">
+            <en>No fields owned by your current farm.</en>
+            <de>Dein aktueller Hof besitzt keine Felder.</de>
+        </text>
+        <text name="hl_fieldsHint">
+            <en>Select an owned field, then Show field or Hide field. Save the game to keep changes. Farm managers only.</en>
+            <de>Eigenes Feld wählen und ein-/ausblenden. Zum Speichern Spielstand sichern. Nur für Hofmanager.</de>
+        </text>
+        <text name="hl_yearCaps">
+            <en>YEAR </en>
+            <de>JAHR </de>
+        </text>
+        <text name="hl_totalsScope">
+            <en> TOTALS · </en>
+            <de> GESAMT · </de>
+        </text>
+        <text name="hl_farmCaps">
+            <en>MY FARM</en>
+            <de>MEIN HOF</de>
+        </text>
+        <text name="hl_contractsCaps">
+            <en>CONTRACTS</en>
+            <de>AUFTRÄGE</de>
+        </text>
+        <text name="hl_allPrefix">
+            <en>All products: </en>
+            <de>Alle Produkte: </de>
+        </text>
+        <text name="hl_byproductSuffix">
+            <en> harvested (byproducts counted once)</en>
+            <de> geerntet (Nebenprodukte einmal gezählt)</de>
+        </text>
+        <text name="hl_showField">
+            <en>Show field</en>
+            <de>Feld einblenden</de>
+        </text>
+        <text name="hl_hideField">
+            <en>Hide field</en>
+            <de>Feld ausblenden</de>
+        </text>
+        <text name="hl_selectedSuffix">
+            <en> selected. </en>
+            <de> ausgewählt. </de>
+        </text>
+        <text name="hl_show">
+            <en>Show</en>
+            <de>Einblenden</de>
+        </text>
+        <text name="hl_hide">
+            <en>Hide</en>
+            <de>Ausblenden</de>
+        </text>
+        <text name="hl_onlyHudSuffix">
+            <en> it in the Harvest Ready HUD only.</en>
+            <de> nur im Erntereife-HUD.</de>
+        </text>
+        <text name="hl_selectOwned">
+            <en>Select an owned field.</en>
+            <de>Eigenes Feld auswählen.</de>
+        </text>
+        <text name="hl_finishSelectedSuffix">
+            <en> selected. Finish harvest when this cutting is complete.</en>
+            <de> ausgewählt. Ernte nach Abschluss dieses Schnitts abschließen.</de>
+        </text>
+        <text name="hl_finishShortHint">
+            <en>Select a field row to finish its harvest.</en>
+            <de>Feldzeile wählen, um die Ernte abzuschließen.</de>
+        </text>
+        <text name="hl_hidden">
+            <en>Hidden</en>
+            <de>Ausgeblendet</de>
+        </text>
+        <text name="hl_shown">
+            <en>Shown</en>
+            <de>Eingeblendet</de>
+        </text>
+        <text name="hl_wait">
+            <en>Please wait a moment and try again.</en>
+            <de>Bitte kurz warten und erneut versuchen.</de>
+        </text>
+        <text name="hl_managerOnly">
+            <en>Only a farm manager can change HUD fields, finish harvests or export reports.</en>
+            <de>Nur Hofmanager können HUD-Felder ändern, Ernten abschließen oder Berichte exportieren.</de>
+        </text>
+        <text name="hl_invalidLedger">
+            <en>The saved ledger is invalid; changes are disabled to protect it.</en>
+            <de>Das gespeicherte Erntebuch ist ungültig; Änderungen sind zum Schutz deaktiviert.</de>
+        </text>
+        <text name="hl_finished">
+            <en>Harvest finished. Save the game to keep this change.</en>
+            <de>Ernte abgeschlossen. Zum Speichern Spielstand sichern.</de>
+        </text>
+        <text name="hl_changed">
+            <en>This harvest changed or was already closed. Refresh and select it again.</en>
+            <de>Diese Ernte wurde geändert oder bereits abgeschlossen. Aktualisieren und erneut auswählen.</de>
+        </text>
+        <text name="hl_exported">
+            <en>CSV reports exported to the server savegame folder.</en>
+            <de>CSV-Berichte in den Spielstandordner des Servers exportiert.</de>
+        </text>
+        <text name="hl_exportFailed">
+            <en>Export failed; see the server log.</en>
+            <de>Export fehlgeschlagen; siehe Serverprotokoll.</de>
+        </text>
+        <text name="hl_invalidHud">
+            <en>HUD field settings could not be read; changes are disabled to protect them.</en>
+            <de>HUD-Feldeinstellungen konnten nicht gelesen werden; Änderungen sind zum Schutz deaktiviert.</de>
+        </text>
+        <text name="hl_selectFarmField">
+            <en>Select a field owned by your farm.</en>
+            <de>Ein Feld deines Hofs auswählen.</de>
+        </text>
+        <text name="hl_fieldHidden">
+            <en>Field %s hidden from Harvest Ready HUD. Save the game to keep this change.</en>
+            <de>Feld %s im Erntereife-HUD ausgeblendet. Zum Speichern Spielstand sichern.</de>
+        </text>
+        <text name="hl_fieldShown">
+            <en>Field %s shown in Harvest Ready HUD. Save the game to keep this change.</en>
+            <de>Feld %s im Erntereife-HUD eingeblendet. Zum Speichern Spielstand sichern.</de>
+        </text>
+        <text name="hl_stageReady">
+            <en>Ready</en>
+            <de>Erntereif</de>
+        </text>
+        <text name="hl_stageBig">
+            <en>Big</en>
+            <de>Groß</de>
+        </text>
+        <text name="hl_stageSmall">
+            <en>Small</en>
+            <de>Klein</de>
+        </text>
+        <text name="hl_stageMiddle">
+            <en>Middle</en>
+            <de>Mittel</de>
+        </text>
+        <text name="hl_stageHarvestable">
+            <en>Harvestable</en>
+            <de>Erntbar</de>
+        </text>
+        <text name="hl_stageGreen">
+            <en>Green</en>
+            <de>Grün</de>
+        </text>
+        <text name="hl_stageGreenSmall">
+            <en>Green small</en>
+            <de>Grün, klein</de>
+        </text>
+        <text name="hl_stageGreenMiddle">
+            <en>Green middle</en>
+            <de>Grün, mittel</de>
+        </text>
+        <text name="hl_stageGrowth">
+            <en>Growth</en>
+            <de>Wachstum</de>
+        </text>
+        <text name="hl_month1">
+            <en>January</en>
+            <de>Januar</de>
+        </text>
+        <text name="hl_month2">
+            <en>February</en>
+            <de>Februar</de>
+        </text>
+        <text name="hl_month3">
+            <en>March</en>
+            <de>März</de>
+        </text>
+        <text name="hl_month4">
+            <en>April</en>
+            <de>April</de>
+        </text>
+        <text name="hl_month5">
+            <en>May</en>
+            <de>Mai</de>
+        </text>
+        <text name="hl_month6">
+            <en>June</en>
+            <de>Juni</de>
+        </text>
+        <text name="hl_month7">
+            <en>July</en>
+            <de>Juli</de>
+        </text>
+        <text name="hl_month8">
+            <en>August</en>
+            <de>August</de>
+        </text>
+        <text name="hl_month9">
+            <en>September</en>
+            <de>September</de>
+        </text>
+        <text name="hl_month10">
+            <en>October</en>
+            <de>Oktober</de>
+        </text>
+        <text name="hl_month11">
+            <en>November</en>
+            <de>November</de>
+        </text>
+        <text name="hl_month12">
+            <en>December</en>
+            <de>Dezember</de>
+        </text>
+        <text name="hl_parcel">
+            <en>Unmapped area / parcel %s</en>
+            <de>Nicht zugeordnete Fläche / Parzelle %s</de>
         </text>
     </l10n>
     <extraSourceFiles>

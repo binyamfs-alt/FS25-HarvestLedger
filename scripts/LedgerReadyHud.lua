@@ -160,6 +160,19 @@ function Hud:stageStatus(fruit, state)
         name = "Big"
     end
     name = name:gsub("^%l", string.upper)
+    local stageKeys = {
+        ["ready"] = "stageReady",
+        ["big"] = "stageBig",
+        ["small"] = "stageSmall",
+        ["middle"] = "stageMiddle",
+        ["harvestable"] = "stageHarvestable",
+        ["green"] = "stageGreen",
+        ["green small"] = "stageGreenSmall",
+        ["green middle"] = "stageGreenMiddle",
+        ["growth"] = "stageGrowth",
+    }
+    local key = stageKeys[name:lower()]
+    name = key and self.ledger:tr(key) or self.ledger:tr("stageGrowth")
     return string.format("%d/%d %s", stage, maximum, name)
 end
 
@@ -206,7 +219,7 @@ function Hud:toggle()
 end
 
 function Hud:rowText(row)
-    return "Field " .. tostring(row.number) .. " — " .. row.crop .. " — " .. row.status
+    return self.ledger:tr("fieldPrefix") .. tostring(row.number) .. " — " .. row.crop .. " — " .. row.status
 end
 
 function Hud:layout()
@@ -216,7 +229,7 @@ function Hud:layout()
     self.iconWidth = self.iconHeight / g_screenAspectRatio
     self.capacity = 10
     self.offset = clamp(self.offset, 0, math.max(0, #self.rows - self.capacity))
-    self.title = "Harvest Ready"
+    self.title = self.ledger:tr("ready")
     if #self.rows > self.capacity then
         self.title = self.title
             .. string.format(

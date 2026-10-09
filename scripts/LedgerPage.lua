@@ -1,19 +1,6 @@
+local H = HarvestLedger
 LedgerPage = {}
 LedgerPage_mt = Class(LedgerPage, TabbedMenuFrameElement)
-local months = {
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-}
 
 function LedgerPage.new()
     local self = LedgerPage:superClass().new(nil, LedgerPage_mt)
@@ -29,12 +16,29 @@ end
 function LedgerPage:setText(id, value)
     local element = self:getDescendantById(id)
     if element then
-        element:setText(tostring(value))
+        element:setText(H:localizeMessage(tostring(value)))
     end
 end
 
 function LedgerPage:onGuiSetupFinished()
     LedgerPage:superClass().onGuiSetupFinished(self)
+    self:setText("label_pageTitle", H:tr("pageTitle"))
+    self:setText("farmButton", H:tr("farm"))
+    self:setText("contractButton", H:tr("contracts"))
+    self:setText("readyHudButton", H:tr("harvestHud"))
+    self:setText("hudFieldsButton", H:tr("hudFields"))
+    self:setText("hudFieldToggleButton", H:tr("selectField"))
+    self:setText("exportButton", H:tr("export"))
+    self:setText("finishButton", H:tr("finish"))
+    self:setText("headlabel", H:tr("fillField"))
+    self:setText("headfieldAcres", H:tr("fieldSize"))
+    self:setText("headharvestAcres", H:tr("harvestedArea"))
+    self:setText("headliters", H:tr("yield"))
+    self:setText("headrate", H:tr("rate"))
+    self:setText("yearHeadlabel", H:tr("fillType"))
+    self:setText("yearHeadharvestAcres", H:tr("harvestedArea"))
+    self:setText("yearHeadliters", H:tr("yield"))
+    self:setText("yearHeadrate", H:tr("rate"))
     -- Reuse the sidebar artwork in the standard menu header badge slot.
     local headerIcon = self:getDescendantById("ledgerHeaderIcon")
     if headerIcon then
@@ -128,7 +132,7 @@ end
 
 function LedgerPage:refresh()
     self.units = HarvestLedger:unitSignature()
-    self:setText("readyHudButton", "Harvest HUD")
+    self:setText("readyHudButton", H:tr("harvestHud"))
     self:styleButtons()
     for _, id in ipairs({ "monthPrevious", "monthNext", "yearPrevious", "yearNext", "monthTitle", "yearTitle", "finishButton" }) do
         local element = self:getDescendantById(id)
@@ -140,34 +144,34 @@ function LedgerPage:refresh()
     if toggle then
         toggle:setVisible(self.hudFields == true)
     end
-    self:setText("headlabel", self.hudFields and "Owned field" or "Fill type / Field")
-    self:setText("headfieldAcres", self.hudFields and "" or "Field size")
-    self:setText("headharvestAcres", self.hudFields and "Harvest Ready HUD" or "Harvested area")
-    self:setText("headliters", self.hudFields and "" or "Yield")
-    self:setText("headrate", self.hudFields and "" or "Yield / area")
+    self:setText("headlabel", self.hudFields and H:tr("ownedField") or H:tr("fillField"))
+    self:setText("headfieldAcres", self.hudFields and "" or H:tr("fieldSize"))
+    self:setText("headharvestAcres", self.hudFields and H:tr("readyHud") or H:tr("harvestedArea"))
+    self:setText("headliters", self.hudFields and "" or H:tr("yield"))
+    self:setText("headrate", self.hudFields and "" or H:tr("rate"))
     if self.hudFields then
         self:refreshHudFields()
         self:refreshFooter()
         return
     end
     self.selectedFieldKey = nil
-    self:setText("monthTitle", months[self.month])
-    self:setText("yearTitle", "Year " .. self.year)
-    self:setText("farmButton", "My Farm")
-    self:setText("contractButton", "Contracts")
+    self:setText("monthTitle", H:tr("month" .. self.month))
+    self:setText("yearTitle", H:tr("yearPrefix") .. self.year)
+    self:setText("farmButton", H:tr("farm"))
+    self:setText("contractButton", H:tr("contracts"))
     local report = LedgerData.report(HarvestLedger.data, self.scope, self.year, self.month, HarvestLedger.viewFarmId)
     self.rows = {}
     for _, product in ipairs(report.rows) do
         local productTitle = self:getProductTitle(product)
         self.rows[#self.rows + 1] = {
-            label = productTitle .. " — TOTAL",
+            label = productTitle .. H:tr("totalSuffix"),
             liters = product.liters,
             areaSqm = product.areaSqm,
             isTotal = true,
         }
         for _, row in ipairs(product.rows) do
             self.rows[#self.rows + 1] = {
-                label = "    " .. row.label .. " · " .. productTitle,
+                label = "    " .. H:displayFieldLabel(row) .. " · " .. productTitle,
                 fieldKey = row.fieldKey,
                 fieldAcres = not row.areaVaried and row.fieldAcres or nil,
                 fieldAreaHa = not row.areaVaried and row.fieldAreaHa or nil,
@@ -177,17 +181,17 @@ function LedgerPage:refresh()
         end
     end
     if #self.rows == 0 then
-        self.rows[1] = { label = "No harvests recorded this month.", empty = true }
+        self.rows[1] = { label = H:tr("emptyMonth"), empty = true }
     end
     self:setText(
         "monthTotal",
-        "Monthly total: "
+        H:tr("monthlyPrefix")
             .. HarvestLedger:displayVolume(report.liters)
             .. "   |   "
             .. HarvestLedger:displayArea(report.areaSqm)
-            .. " harvested"
+            .. H:tr("harvestedSuffix")
     )
-    self:setText("selectionHint", "Select a field row to finish its harvest. The next cut starts a new event.")
+    self:setText("selectionHint", H:tr("finishHint"))
     self.list:reloadData()
     self:refreshFooter()
 end
@@ -200,24 +204,24 @@ function LedgerPage:refreshHudFields()
         if farmId > 0 and field.farmland and field.farmland.farmId == farmId and field.currentMission == nil then
             local number = field.getId and field:getId() or key
             local ignored = HarvestLedger:isReadyHudFieldIgnored(number, farmId)
-            self.rows[#self.rows + 1] = { label = "Field " .. tostring(number), hudFieldNumber = number, ignored = ignored }
+            self.rows[#self.rows + 1] = { label = H:tr("fieldPrefix") .. tostring(number), hudFieldNumber = number, ignored = ignored }
             ignoredCount = ignoredCount + (ignored and 1 or 0)
         end
     end
     table.sort(self.rows, function(a, b)
         return tonumber(a.hudFieldNumber) < tonumber(b.hudFieldNumber)
     end)
-    self:setText("monthTotal", string.format("Harvest Ready HUD: %d owned fields · %d hidden. Harvest records and reports are unaffected.", #self.rows, ignoredCount))
+    self:setText("monthTotal", string.format(H:tr("fieldsSummary"), #self.rows, ignoredCount))
     if #self.rows == 0 then
-        self.rows[1] = { label = "No fields owned by your current farm.", empty = true }
+        self.rows[1] = { label = H:tr("noFields"), empty = true }
     end
     self.selectedHudFieldNumber = nil
-    self:setText("hudFieldToggleButton", "Select a field")
+    self:setText("hudFieldToggleButton", H:tr("selectField"))
     local button = self:getDescendantById("hudFieldToggleButton")
     if button then
         button:setDisabled(true)
     end
-    self:setText("selectionHint", "Select an owned field, then Show field or Hide field. Save the game to keep changes. Farm managers only.")
+    self:setText("selectionHint", H:tr("fieldsHint"))
     self.list:reloadData()
 end
 
@@ -241,7 +245,7 @@ function LedgerPage:refreshFooter()
     self.footerPage = math.max(1, math.min(self.footerPage, pageCount))
     self:setText(
         "footerTitle",
-        "YEAR " .. self.year .. " TOTALS · " .. (self.scope == "farm" and "MY FARM" or "CONTRACTS")
+        H:tr("yearCaps") .. self.year .. H:tr("totalsScope") .. (self.scope == "farm" and H:tr("farmCaps") or H:tr("contractsCaps"))
     )
     self:setText("footerPages", tostring(self.footerPage) .. " / " .. pageCount)
     for i = 1, 4 do
@@ -253,11 +257,11 @@ function LedgerPage:refreshFooter()
     end
     self:setText(
         "yearAll",
-        "All products: "
+        H:tr("allPrefix")
             .. HarvestLedger:displayVolume(report.liters)
             .. "   |   "
             .. HarvestLedger:displayArea(report.areaSqm)
-            .. " harvested (byproducts counted once)"
+            .. H:tr("byproductSuffix")
     )
 end
 
@@ -314,19 +318,19 @@ function LedgerPage:onSelectField(element)
     if self.hudFields then
         self.selectedHudFieldNumber = row and row.hudFieldNumber
         local ignored = self.selectedHudFieldNumber and HarvestLedger:isReadyHudFieldIgnored(self.selectedHudFieldNumber)
-        self:setText("hudFieldToggleButton", self.selectedHudFieldNumber and (ignored and "Show field" or "Hide field") or "Select a field")
+        self:setText("hudFieldToggleButton", self.selectedHudFieldNumber and (ignored and H:tr("showField") or H:tr("hideField")) or H:tr("selectField"))
         local button = self:getDescendantById("hudFieldToggleButton")
         if button then
             button:setDisabled(self.selectedHudFieldNumber == nil)
         end
-        self:setText("selectionHint", self.selectedHudFieldNumber and (row.label .. " selected. " .. (ignored and "Show" or "Hide") .. " it in the Harvest Ready HUD only.") or "Select an owned field.")
+        self:setText("selectionHint", self.selectedHudFieldNumber and (row.label .. H:tr("selectedSuffix") .. (ignored and H:tr("show") or H:tr("hide")) .. H:tr("onlyHudSuffix")) or H:tr("selectOwned"))
         return
     end
     self.selectedFieldKey = row and row.fieldKey
     self:setText(
         "selectionHint",
-        self.selectedFieldKey and (row.label .. " selected. Finish harvest when this cutting is complete.")
-            or "Select a field row to finish its harvest."
+        self.selectedFieldKey and (row.label .. H:tr("finishSelectedSuffix"))
+            or H:tr("finishShortHint")
     )
 end
 function LedgerPage:onFinishHarvest()
@@ -363,7 +367,7 @@ function LedgerPage:populateCellForItemInSection(list, section, index, item)
     text("label", row.label)
     if self.hudFields then
         text("fieldAcres", "")
-        text("harvestAcres", row.empty and "" or (row.ignored and "Hidden" or "Shown"))
+        text("harvestAcres", row.empty and "" or (row.ignored and H:tr("hidden") or H:tr("shown")))
         text("liters", "")
         text("rate", "")
         return

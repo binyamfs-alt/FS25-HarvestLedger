@@ -134,3 +134,9 @@ Scripted accounting, persistence, network, harvesting and PF regression tests we
 ## Optional Harvest Diagnostics
 
 [Harvest Diagnostics 1.0.0.3](tools/HarvestDiagnostics/README.md) is a separate troubleshooting helper for production, deposition and pickup accounting. Requires Harvest Ledger. See its guide for the original ZIP download, installation and session-log locations.
+
+## German localization testing build
+
+Version 1.2.0.7: German display text follows the game language. Localization and package checks passed; in-game layout remains pending user testing. No release or merge of this testing build.
+
+Menu headings, calendar months, field controls, totals, HUD growth stages and action-result messages are localized. Multiplayer result text is translated on the receiving client. Saved labels, accounting, CSV schemas and network formats remain compatible.

@@ -16,7 +16,7 @@ function Class(t,s)return {__index=t}end
 function InitEventClass()end
 TabbedMenuFrameElement={}
 ''')
-for name in ('LedgerData', 'LedgerStorage', 'LedgerReadyHudSettings', 'LedgerNetwork', 'LedgerReadyHud', 'LedgerPage'):
+for name in ('LedgerLocalization', 'LedgerData', 'LedgerStorage', 'LedgerReadyHudSettings', 'LedgerNetwork', 'LedgerReadyHud', 'LedgerPage'):
     lua.execute((root/'scripts'/f'{name}.lua').read_text(encoding='utf-8'))
 lua.execute('''
 local H=HarvestLedger

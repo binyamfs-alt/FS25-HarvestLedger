@@ -4,6 +4,7 @@ HarvestLedger = {
     targetFarmId = 1,
     enabled = false,
 }
+source(g_currentModDirectory .. "scripts/LedgerLocalization.lua")
 source(g_currentModDirectory .. "scripts/LedgerData.lua")
 source(g_currentModDirectory .. "scripts/LedgerPF.lua")
 source(g_currentModDirectory .. "scripts/LedgerStorage.lua")
