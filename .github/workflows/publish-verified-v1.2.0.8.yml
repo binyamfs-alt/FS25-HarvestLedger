@@ -1,0 +1,21 @@
+name: Publish verified Harvest Ledger 1.2.0.8
+on:
+  push:
+    branches: ['release/harvest-ledger-1.2.0.8']
+    paths: ['.github/workflows/publish-verified-v1.2.0.8.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 6d0d0f09b923f803f1f2dae8547369e1960f0141
+      - name: Validate ZIP integrity
+        run: python3 -c "import zipfile; z=zipfile.ZipFile('builds/FS25_z_HarvestLedger.zip'); assert z.testzip() is None"
+      - name: Publish verified source and package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create 'v1.2.0.8' 'builds/FS25_z_HarvestLedger.zip' --target '6d0d0f09b923f803f1f2dae8547369e1960f0141' --latest --title 'Harvest Ledger 1.2.0.8' --notes 'German menu and Harvest Ready HUD localization, calendar months, field labels, controls and action messages. Restores spaces in composed labels and totals after GIANTS XML trimming. User confirmed German menu and HUD layout, including the spacing fix, and tested metric units; prior imperial screenshots also checked. Automated Lua 5.1 emulation and enabled GIANTS TestRunner checks passed; editor GUI checks were skipped. Saved accounting, CSV schemas and network formats remain compatible.'
