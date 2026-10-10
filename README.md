@@ -41,11 +41,6 @@ Invalid/unsupported settings are not overwritten; the game log reports the
 problem. Normal saves stage and verify the settings, preserving a `.bak` copy.
 An empty list is an intentional reset and remains empty after saving/reloading.
 
-For this player's Alma save (savegame3, farm 1), the separately supplied
-`harvestLedgerReadyHud.xml` starts with fields 7, 8, 9, 11, and 29 hidden. Install
-that file only in that save while the game is closed. Those field numbers are
-not defaults in the mod or any other map/save.
-
 ## Units
 
 All displayed field sizes, harvested areas, volumes and yield rates follow the local player's General Settings, using built-in I18N conversions and formatters. Changing units refreshes an open ledger. No separate HL unit setting.
@@ -140,3 +135,5 @@ Scripted accounting, persistence, network, harvesting and PF regression tests we
 Version 1.2.0.7: German display text follows the game language. Localization and package checks passed; in-game layout remains pending user testing. No release or merge of this testing build.
 
 Menu headings, calendar months, field controls, totals, HUD growth stages and action-result messages are localized. Multiplayer result text is translated on the receiving client. Saved labels, accounting, CSV schemas and network formats remain compatible.
+
+Version 1.2.0.8 testing build: restore separators stripped from XML translations by the game, fixing field/year labels and composed totals in English and German. In-game spacing retest pending.

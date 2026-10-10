@@ -13,7 +13,7 @@ for language in ['en','de']:
     lua.execute('HarvestLedger={modName="HL"}; Class=function(t) return {__index=t} end; TabbedMenuFrameElement={}')
     def get_text(key,env):
         assert env=='HL'
-        return entries[key][language]
+        return entries[key][language].strip()  # Match GIANTS XML text trimming
     lua.globals().translate=get_text
     lua.execute('g_i18n={getText=function(self,key,env) return translate(key,env) end}')
     for name in ['LedgerLocalization','LedgerPage','LedgerReadyHud']:
@@ -21,6 +21,16 @@ for language in ['en','de']:
     lua.execute('''
 local H=HarvestLedger
 assert(H:tr('month3')~=nil)
+assert(H:tr('fieldPrefix'):sub(-1)==' ')
+assert(H:tr('yearPrefix'):sub(-1)==' ')
+assert(H:tr('monthlyPrefix'):sub(-1)==' ')
+assert(H:tr('harvestedSuffix'):sub(1,1)==' ')
+assert(H:tr('yearCaps'):sub(-1)==' ')
+assert(H:tr('totalsScope'):sub(1,1)==' ' and H:tr('totalsScope'):sub(-1)==' ')
+assert(H:tr('allPrefix'):sub(-1)==' ')
+assert(H:tr('byproductSuffix'):sub(1,1)==' ')
+assert(H:tr('totalSuffix'):sub(1,1)==' ')
+
 assert(H:localizeMessage('Please wait a moment and try again.')==H:tr('wait'))
 assert(H:localizeMessage('Field 12 hidden from Harvest Ready HUD. Save the game to keep this change.')==H:tr('fieldHidden','12'))
 assert(H:localizeMessage('Field 12 shown in Harvest Ready HUD. Save the game to keep this change.')==H:tr('fieldShown','12'))

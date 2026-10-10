@@ -81,6 +81,13 @@ local english = {
 }
 function H:tr(key, ...)
     local text = g_i18n and g_i18n:getText("hl_" .. key, self.modName) or english[key]
+    -- GIANTS trims XML text edges. Restore separators needed by composed labels.
+    local fallback = english[key]
+    if fallback then
+        local leading = fallback:match("^%s+") or ""
+        local trailing = fallback:match("%s+$") or ""
+        text = leading .. text:gsub("^%s+", ""):gsub("%s+$", "") .. trailing
+    end
     if select("#", ...) > 0 then return string.format(text, ...) end
     return text
 end
