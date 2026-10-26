@@ -1,4 +1,4 @@
-# Harvest Ledger 1.2.0.6
+# Harvest Ledger 1.2.0.9
 
 ## Harvest Ready HUD
 
@@ -138,6 +138,6 @@ Menu headings, calendar months, field controls, totals, HUD growth stages and ac
 
 Version 1.2.0.9 testing build: restore separators stripped from XML translations by the game, fixing field/year labels and composed totals in English and German. In-game spacing retest pending.
 
-## 1.2.0.9 testing update
+## 1.2.0.9 update
 
 Harvest Ready now automatically cycles through sets of ten ready fields every eight seconds, including a partially filled last set. Background field scans preserve the cycle. Cursor/menu interaction pauses it. Existing farm exclusions and translations are retained.
