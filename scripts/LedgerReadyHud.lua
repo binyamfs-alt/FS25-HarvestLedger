@@ -16,6 +16,7 @@ function Hud.new(ledger)
         y = 0.76,
         visible = true,
         offset = 0,
+        pageElapsed = 0,
         elapsed = 5000,
         scanElapsed = 0,
         icons = {},
@@ -188,6 +189,7 @@ function Hud:update(dt)
     if self.farmId ~= g_currentMission:getFarmId() then
         self.rows, self.jobs, self.elapsed, self.offset = {}, nil, 5000, 0
         self.farmId = g_currentMission:getFarmId()
+        self.pageElapsed = 0
     end
     -- Ownership changes must remove rows immediately, even mid scan.
     for i = #self.rows, 1, -1 do
@@ -196,6 +198,7 @@ function Hud:update(dt)
         end
     end
     if not self.visible or not g_fieldManager or not g_fruitTypeManager then
+        self.pageElapsed = 0
         return
     end
     self.elapsed = self.elapsed + dt
@@ -208,10 +211,31 @@ function Hud:update(dt)
         -- Read one owned field per update to keep terrain work bounded.
         self:scanStep()
     end
+    self:updatePaging(dt)
+end
+
+function Hud:updatePaging(dt)
+    local capacity = 10
+    local lastPageOffset = math.floor(math.max(0, #self.rows - 1) / capacity) * capacity
+    self.offset = clamp(self.offset, 0, lastPageOffset)
+    local missionHud = g_currentMission.hud
+    if lastPageOffset == 0 or not self.visible or g_gui:getIsGuiVisible()
+        or g_inputBinding:getShowMouseCursor()
+        or (missionHud and missionHud.getIsVisible and not missionHud:getIsVisible()) then
+        self.pageElapsed = 0
+        return
+    end
+    self.pageElapsed = (self.pageElapsed or 0) + dt
+    if self.pageElapsed >= 8000 then
+        self.pageElapsed = 0
+        self.offset = self.offset >= lastPageOffset and 0
+            or math.min(lastPageOffset, (math.floor(self.offset / capacity) + 1) * capacity)
+    end
 end
 
 function Hud:toggle()
     self.visible = not self.visible
+    self.pageElapsed = 0
     if not self.visible then
         self.dragging = false
     end
@@ -228,7 +252,7 @@ function Hud:layout()
     self.line, self.padding, self.iconHeight = 0.023, 0.006, 0.021
     self.iconWidth = self.iconHeight / g_screenAspectRatio
     self.capacity = 10
-    self.offset = clamp(self.offset, 0, math.max(0, #self.rows - self.capacity))
+    self.offset = clamp(self.offset, 0, math.floor(math.max(0, #self.rows - 1) / self.capacity) * self.capacity)
     self.title = self.ledger:tr("ready")
     if #self.rows > self.capacity then
         self.title = self.title
@@ -307,11 +331,13 @@ function Hud:mouseEvent(x, y, isDown, isUp, button)
     self:layout()
     local inside = x >= self.x and x <= self.x + self.width and y <= self.y and y >= self.y - self.height
     if inside and isDown then
+        self.pageElapsed = 0
         if button == Input.MOUSE_BUTTON_WHEEL_UP then
             self.offset = math.max(0, self.offset - 1)
         end
         if button == Input.MOUSE_BUTTON_WHEEL_DOWN then
-            self.offset = math.min(math.max(0, #self.rows - self.capacity), self.offset + 1)
+            local lastPageOffset = math.floor(math.max(0, #self.rows - 1) / self.capacity) * self.capacity
+            self.offset = math.min(lastPageOffset, self.offset + 1)
         end
         if button == Input.MOUSE_BUTTON_LEFT and y >= self.y - self.headerHeight then
             self.dragging, self.dragX, self.dragY = true, x - self.x, y - self.y

@@ -8,7 +8,7 @@ The HUD stays hidden while no owned fields are harvest-ready, including during t
 - NPC fields, contract fields, MEADOW and non-harvestable crops are excluded. No calendar predictions.
 - Uses a fresh native FieldState update at the map-defined field center, matching the game's current field classification. Cut, rolled, withered and non-harvestable states are excluded. Isolated ready pixels or border remnants do not override a Cut field state. A partly harvested field is listed only while its sampled current state remains harvestable.
 - Growth-stage labels use each crop's loaded definitions and exclude invisible, cut and withered stages from the displayed count. The tested CLOVER2 displays Ready as 3/3. Earlier harvestable stages, including forage stages for corn and sunflowers, are intentionally included even when Field Info says Growing.
-- Harvest HUD is an on/off toggle on the Harvest Ledger tab: green outline when on, black when off. Drag the title bar whenever the mouse cursor is visible; scroll over the HUD to see additional rows. Moving is always enabled.
+- Harvest HUD is an on/off toggle on the Harvest Ledger tab: green outline when on, black when off. Drag the title bar whenever the mouse cursor is visible; additional rows cycle in sets of ten every eight seconds. Cycling pauses while the cursor is visible, a menu is open, or the game HUD is hidden. Mouse-wheel scrolling remains available. Moving is always enabled.
 - Controls settings contain Toggle Harvest Ready HUD. The default is unassigned to avoid conflicts with other mods, including Follow Me and Hide Objects.
 - Position and visibility persist locally across saves in modSettings/HarvestLedger/readyHud.xml. HUD width fits the contents and stays on-screen. Opacity, header height and font sizes match SAM.
 - Scanning is read-only, spread across updates, and refreshes after each completed scan plus a five-second pause. Large farms may take longer to scan. It samples the map-defined field center; it does not enumerate manually created fields without a mapped field ID.
@@ -136,4 +136,8 @@ Version 1.2.0.7: German display text follows the game language. Localization and
 
 Menu headings, calendar months, field controls, totals, HUD growth stages and action-result messages are localized. Multiplayer result text is translated on the receiving client. Saved labels, accounting, CSV schemas and network formats remain compatible.
 
-Version 1.2.0.8 testing build: restore separators stripped from XML translations by the game, fixing field/year labels and composed totals in English and German. In-game spacing retest pending.
+Version 1.2.0.9 testing build: restore separators stripped from XML translations by the game, fixing field/year labels and composed totals in English and German. In-game spacing retest pending.
+
+## 1.2.0.9 testing update
+
+Harvest Ready now automatically cycles through sets of ten ready fields every eight seconds, including a partially filled last set. Background field scans preserve the cycle. Cursor/menu interaction pauses it. Existing farm exclusions and translations are retained.
