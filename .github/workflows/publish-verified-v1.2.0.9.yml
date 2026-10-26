@@ -1,0 +1,27 @@
+name: Publish verified Harvest Ledger 1.2.0.9
+on:
+  push:
+    branches: ['fix/ready-hud-page-cycle']
+    paths: ['.github/workflows/publish-verified-v1.2.0.9.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 24dbf9c42b98a9a80ba7dd184cea52332101de95
+      - name: Validate packaged version and integrity
+        run: |
+          python3 - <<'PY'
+          import zipfile, xml.etree.ElementTree as ET
+          z=zipfile.ZipFile('builds/FS25_z_HarvestLedger.zip')
+          assert z.testzip() is None
+          assert ET.fromstring(z.read('modDesc.xml')).findtext('version') == '1.2.0.9'
+          PY
+      - name: Publish verified source and package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create 'v1.2.0.9' 'builds/FS25_z_HarvestLedger.zip' --target '24dbf9c42b98a9a80ba7dd184cea52332101de95' --latest --title 'Harvest Ledger 1.2.0.9' --notes 'Harvest Ready now automatically cycles through sets of ten fields every eight seconds, including the final partial set. Cycling pauses while using the cursor, menus, or hidden HUD; manual scrolling remains available. Retains field exclusions and English/German localization. User confirmed the update in game; the Alma log shows 1.2.0.9 loaded with no Harvest Ledger warnings or errors. Lua 5.1 paging, exclusion and localization regressions and enabled GIANTS TestRunner checks passed; GUI editor/shader checks were skipped. Save and accounting formats are unchanged.'
