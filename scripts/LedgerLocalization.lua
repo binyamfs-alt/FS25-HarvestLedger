@@ -1,6 +1,13 @@
 -- Display translations only: saved measurements, field labels and CSV schemas stay stable.
 local H = HarvestLedger
 local english = {
+    ["greenhouses"] = "Greenhouses",
+    ["greenhousesCaps"] = "GREENHOUSES",
+    ["fillGreenhouse"] = "Fill type / Greenhouse",
+    ["produced"] = "Produced",
+    ["emptyGreenhouse"] = "No greenhouse production recorded this month.",
+    ["greenhouseHint"] = "Actual output recorded since tracking began. Deliveries and pallet collection are excluded. Save the game to keep history.",
+
     ["parcel"] = "Unmapped area / parcel %s",
     ["pageTitle"] = "Harvest Ledger",
     ["farm"] = "My Farm",

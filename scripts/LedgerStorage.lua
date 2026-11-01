@@ -61,7 +61,7 @@ function H:loadData()
     end
     local function readLedger()
         local version = getXMLInt(xml, "harvestLedger#version")
-        if version ~= 1 and version ~= 2 then
+        if version ~= 1 and version ~= 2 and version ~= 3 then
             return nil, "Unsupported ledger version"
         end
         local data = LedgerData.new()
@@ -81,10 +81,13 @@ function H:loadData()
                 end
             end
             event.closed = getXMLBool(xml, key .. "#closed") == true
+            if event.scope == "greenhouse" and (version ~= 3 or not event.closed) then
+                return nil, "Invalid greenhouse record"
+            end
             event.pfStart, event.pfLast = readPF(xml, key .. ".pfStart"), readPF(xml, key .. ".pfLast")
             if
                 not event.id
-                or (event.scope ~= "farm" and event.scope ~= "contract")
+                or (event.scope ~= "farm" and event.scope ~= "contract" and event.scope ~= "greenhouse")
                 or not event.fieldKey
                 or not event.cropName
             then
@@ -179,13 +182,17 @@ function H:saveData()
     if not path then
         return false
     end
+    local ledgerVersion = 2
+    for _, event in ipairs(self.data.events) do
+        if event.scope == "greenhouse" then ledgerVersion = 3; break end
+    end
     local temp = path .. ".tmp"
     local xml = createXMLFile("HarvestLedger", temp, "harvestLedger")
     if not xml or xml == 0 then
         error("Cannot create ledger file")
     end
     local function writeLedger()
-        setXMLInt(xml, "harvestLedger#version", 2)
+        setXMLInt(xml, "harvestLedger#version", ledgerVersion)
         setXMLInt(xml, "harvestLedger#nextId", self.data.nextId)
         for i, event in ipairs(self.data.events) do
             local key = string.format("harvestLedger.event(%d)", i - 1)
@@ -226,7 +233,7 @@ function H:saveData()
     if not check or check == 0 then
         error("Written ledger could not be verified")
     end
-    local valid = getXMLInt(check, "harvestLedger#version") == 2
+    local valid = getXMLInt(check, "harvestLedger#version") == ledgerVersion
     delete(check)
     if not valid then
         error("Written ledger version could not be verified")
@@ -244,7 +251,7 @@ function H:saveData()
     if not installed or installed == 0 then
         error("Could not replace ledger")
     end
-    local installedValid = getXMLInt(installed, "harvestLedger#version") == 2
+    local installedValid = getXMLInt(installed, "harvestLedger#version") == ledgerVersion
         and getXMLInt(installed, "harvestLedger#nextId") == self.data.nextId
     delete(installed)
     if not installedValid then
@@ -403,7 +410,7 @@ function H:exportCSV(farmId)
     )
     line(yearly, "Scope", "Year", "Fill type", "Harvested acres", "Liters", "L/acre")
     local currentYear = self:getDate()
-    for _, scope in ipairs({ "farm", "contract" }) do
+    for _, scope in ipairs({ "farm", "contract", "greenhouse" }) do
         for _, year in ipairs(LedgerData.years(self.data, currentYear, farmId)) do
             for month = 1, 12 do
                 local report = LedgerData.report(self.data, scope, year, month, farmId)

@@ -90,13 +90,7 @@ function Hud:scanStep()
                 table.remove(self.pendingRows, i)
             end
         end
-        table.sort(self.pendingRows, function(a, b)
-            local an, bn = tonumber(a.number), tonumber(b.number)
-            if an and bn then
-                return an < bn
-            end
-            return tostring(a.number) < tostring(b.number)
-        end)
+        self:sortRows(self.pendingRows)
         self.rows, self.jobs, self.pendingRows = self.pendingRows, nil, nil
         self.elapsed = 0
         return
@@ -187,6 +181,7 @@ function Hud:update(dt)
         self.dragging = false
     end
     if self.farmId ~= g_currentMission:getFarmId() then
+        self.sortX, self.sortZ = nil, nil
         self.rows, self.jobs, self.elapsed, self.offset = {}, nil, 5000, 0
         self.farmId = g_currentMission:getFarmId()
         self.pageElapsed = 0
@@ -235,6 +230,10 @@ end
 
 function Hud:toggle()
     self.visible = not self.visible
+    self.sortX, self.sortZ = nil, nil
+    self:sortRows(self.rows)
+    if self.pendingRows then self:sortRows(self.pendingRows) end
+    self.offset = 0
     self.pageElapsed = 0
     if not self.visible then
         self.dragging = false
@@ -243,7 +242,49 @@ function Hud:toggle()
 end
 
 function Hud:rowText(row)
-    return self.ledger:tr("fieldPrefix") .. tostring(row.number) .. " — " .. row.crop .. " — " .. row.status
+    local text = self.ledger:tr("fieldPrefix") .. tostring(row.number) .. " — " .. row.crop .. " — " .. row.status
+    if row.distanceSquared then
+        local meters = math.sqrt(row.distanceSquared)
+        local imperial = g_i18n and g_i18n:getDistance(1) < 0.8
+        text = text .. string.format(imperial and " — %.0f yd" or " — %.0f m", imperial and meters * 1.0936133 or meters)
+    end
+    return text
+end
+
+-- Same origin and straight-line measurement as Contract Distance Sort. This
+-- works independently of CDS and never changes its contract progress bars.
+function Hud:applyDistanceSort()
+    if not self.visible or (g_gui and g_gui:getIsGuiVisible()) then return end
+    local player = g_localPlayer
+    local vehicle = player and player.getCurrentVehicle and player:getCurrentVehicle()
+    local node = vehicle and vehicle.rootNode or (player and player.rootNode)
+    if not node then return end
+    local x, _, z = getWorldTranslation(node)
+    if not LedgerData.isNumber(x) or not LedgerData.isNumber(z) then return end
+    self.sortX, self.sortZ = x, z
+    self:sortRows(self.rows)
+    if self.pendingRows then self:sortRows(self.pendingRows) end
+    self.offset, self.pageElapsed = 0, 0
+end
+
+function Hud:sortRows(rows)
+    local x, z = self.sortX, self.sortZ
+    for _, row in ipairs(rows) do
+        row.distanceSquared = nil
+        if x and row.field.getCenterOfFieldWorldPosition then
+            local fx, fz = row.field:getCenterOfFieldWorldPosition()
+            if LedgerData.isNumber(fx) and LedgerData.isNumber(fz) then
+                row.distanceSquared = (fx - x)^2 + (fz - z)^2
+            end
+        end
+    end
+    table.sort(rows, function(a, b)
+        local ad, bd = a.distanceSquared or math.huge, b.distanceSquared or math.huge
+        if ad ~= bd then return ad < bd end
+        local an, bn = tonumber(a.number), tonumber(b.number)
+        if an and bn and an ~= bn then return an < bn end
+        return tostring(a.number) < tostring(b.number)
+    end)
 end
 
 function Hud:layout()
@@ -381,7 +422,7 @@ function Hud:delete()
 end
 
 function HarvestLedger:registerReadyHudInputs()
-    for _, action in ipairs({ "HL_READY_TOGGLE", "HL_MOUSE_TOGGLE" }) do
+    for _, action in ipairs({ "HL_READY_TOGGLE", "HL_MOUSE_TOGGLE", "HL_READY_SORT" }) do
         local success, id = g_inputBinding:registerActionEvent(
             InputAction[action],
             self,
@@ -407,6 +448,8 @@ function HarvestLedger:onReadyHudAction(action)
         self.readyHud:toggle()
     elseif action == InputAction.HL_MOUSE_TOGGLE then
         self.readyHud:toggleMouse()
+    elseif action == InputAction.HL_READY_SORT then
+        self.readyHud:applyDistanceSort()
     end
 end
 

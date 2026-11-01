@@ -1,4 +1,26 @@
-# Harvest Ledger 1.2.0.9
+# Harvest Ledger 1.2.0.10
+
+## 1.2.0.10 testing build
+
+### Manual Harvest Ready distance sorting
+
+Press **Right Shift + H** to sort ready fields nearest-first from your current vehicle, or from your player when on foot. Distances are straight-line distances to field centers and display in meters or yards according to General Settings. Reassign **Harvest Ledger: Sort ready fields by distance** in Controls.
+
+Sorting is never applied automatically. The HUD starts in field-number order without distances. Pressing the key captures your position; moving afterwards does not change that sort origin or the displayed distances. Press the key again to refresh it. Background readiness scans maintain the selected ordering and include newly ready fields relative to that captured origin. Equal distances use field-number order. Toggling the HUD from either its key or the menu clears sorting and distances, resets the page, and restores field-number order. Changing farms also clears the sort. The choice is not saved across game sessions.
+
+This uses the same origin and distance convention as Contract Distance Sort, independently. CDS is optional, and its active-contract HUD and controls are unchanged. Right Shift + H was available in the player's saved controls when checked on November 1, 2026.
+
+### Greenhouse production history
+
+Open Harvest Ledger and choose **Greenhouses**. Month/year selectors show actual produced volume by product and greenhouse, with yearly product totals below. Greenhouses with the same name are distinguished by their world coordinates. Products and display volumes follow the loaded game definitions and General Settings. The page refreshes with the ledger and supports the existing yearly footer paging.
+
+Recording starts when this build is enabled; existing stock is not historical production. The server observes positive, capacity-clamped output storage changes during native greenhouse production calls. Deliveries, input consumption, existing stock, pallet collection and later sales are not counted again. Native greenhouse specializations and greenhouse placeable types are recognized, including the installed Industrial Greenhouse definition. Mods that replace or bypass the native production/storage pipeline need separate compatibility testing.
+
+History remains with the farm that produced it, including after ownership transfers or selling the greenhouse. Save the game to keep it. Existing farm and contract harvest reports stay separate. Greenhouse entries use the `greenhouse` scope in the existing event/monthly/yearly CSV exports; their field-label column identifies the greenhouse, and harvested area is zero with no yield-per-area value. Multiplayer snapshots retain the existing farm authorization and filtering.
+
+Existing version 1/2 ledger saves remain readable. A save containing greenhouse history uses ledger schema 3, preserving the existing record layout with a new scope. **Older Harvest Ledger builds cannot read schema 3 and will protect the ledger from overwrite.** Keep the save backup when testing or rolling back. Normal saves retain the existing `.bak` and staging behavior. All multiplayer participants must use the same testing build.
+
+Automated tests use emulated engine APIs; live single-player and multiplayer verification of these new features remains pending. This testing build has not been merged or released.
 
 ## Harvest Ready HUD
 

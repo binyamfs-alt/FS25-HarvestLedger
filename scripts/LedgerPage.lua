@@ -25,6 +25,7 @@ function LedgerPage:onGuiSetupFinished()
     self:setText("label_pageTitle", H:tr("pageTitle"))
     self:setText("farmButton", H:tr("farm"))
     self:setText("contractButton", H:tr("contracts"))
+    self:setText("greenhouseButton", H:tr("greenhouses"))
     self:setText("readyHudButton", H:tr("harvestHud"))
     self:setText("hudFieldsButton", H:tr("hudFields"))
     self:setText("hudFieldToggleButton", H:tr("selectField"))
@@ -73,6 +74,7 @@ function LedgerPage:styleButtons()
     for _, id in ipairs({
         "farmButton",
         "contractButton",
+        "greenhouseButton",
         "readyHudButton",
         "hudFieldsButton",
         "hudFieldToggleButton",
@@ -90,6 +92,7 @@ function LedgerPage:styleButtons()
             local kind = arrows[id] and "buttonArrow" or "buttonWide"
             local active = (id == "farmButton" and self.scope == "farm")
                 or (id == "contractButton" and self.scope == "contract")
+                or (id == "greenhouseButton" and self.scope == "greenhouse" and not self.hudFields)
                 or (id == "readyHudButton" and HarvestLedger.readyHud and HarvestLedger.readyHud.visible)
                 or (id == "hudFieldsButton" and self.hudFields)
             -- Explicit paths also allow the ModHub file scanner to find these assets.
@@ -131,6 +134,7 @@ function LedgerPage:getProductTitle(product)
 end
 
 function LedgerPage:refresh()
+    local greenhouse = self.scope == "greenhouse" and not self.hudFields
     self.units = HarvestLedger:unitSignature()
     self:setText("readyHudButton", H:tr("harvestHud"))
     self:styleButtons()
@@ -144,11 +148,16 @@ function LedgerPage:refresh()
     if toggle then
         toggle:setVisible(self.hudFields == true)
     end
-    self:setText("headlabel", self.hudFields and H:tr("ownedField") or H:tr("fillField"))
-    self:setText("headfieldAcres", self.hudFields and "" or H:tr("fieldSize"))
-    self:setText("headharvestAcres", self.hudFields and H:tr("readyHud") or H:tr("harvestedArea"))
-    self:setText("headliters", self.hudFields and "" or H:tr("yield"))
-    self:setText("headrate", self.hudFields and "" or H:tr("rate"))
+    local finish = self:getDescendantById("finishButton")
+    if finish then finish:setVisible(not self.hudFields and not greenhouse) end
+    self:setText("headlabel", self.hudFields and H:tr("ownedField") or (greenhouse and H:tr("fillGreenhouse") or H:tr("fillField")))
+    self:setText("headfieldAcres", (self.hudFields or greenhouse) and "" or H:tr("fieldSize"))
+    self:setText("headharvestAcres", self.hudFields and H:tr("readyHud") or (greenhouse and "" or H:tr("harvestedArea")))
+    self:setText("headliters", self.hudFields and "" or (greenhouse and H:tr("produced") or H:tr("yield")))
+    self:setText("headrate", (self.hudFields or greenhouse) and "" or H:tr("rate"))
+    self:setText("yearHeadharvestAcres", greenhouse and "" or H:tr("harvestedArea"))
+    self:setText("yearHeadliters", greenhouse and H:tr("produced") or H:tr("yield"))
+    self:setText("yearHeadrate", greenhouse and "" or H:tr("rate"))
     if self.hudFields then
         self:refreshHudFields()
         self:refreshFooter()
@@ -181,17 +190,15 @@ function LedgerPage:refresh()
         end
     end
     if #self.rows == 0 then
-        self.rows[1] = { label = H:tr("emptyMonth"), empty = true }
+        self.rows[1] = { label = H:tr(greenhouse and "emptyGreenhouse" or "emptyMonth"), empty = true }
     end
     self:setText(
         "monthTotal",
         H:tr("monthlyPrefix")
             .. HarvestLedger:displayVolume(report.liters)
-            .. "   |   "
-            .. HarvestLedger:displayArea(report.areaSqm)
-            .. H:tr("harvestedSuffix")
+            .. (greenhouse and "" or ("   |   " .. HarvestLedger:displayArea(report.areaSqm) .. H:tr("harvestedSuffix")))
     )
-    self:setText("selectionHint", H:tr("finishHint"))
+    self:setText("selectionHint", H:tr(greenhouse and "greenhouseHint" or "finishHint"))
     self.list:reloadData()
     self:refreshFooter()
 end
@@ -226,6 +233,7 @@ function LedgerPage:refreshHudFields()
 end
 
 function LedgerPage:onHudFields()
+    if self.scope == "greenhouse" then self.scope = "farm" end
     self.hudFields = not self.hudFields
     self:refresh()
     FocusManager:setFocus(self.list)
@@ -240,28 +248,27 @@ function LedgerPage:onToggleHudField()
 end
 
 function LedgerPage:refreshFooter()
+    local greenhouse = self.scope == "greenhouse" and not self.hudFields
     local report = LedgerData.report(HarvestLedger.data, self.scope, self.year, nil, HarvestLedger.viewFarmId)
     local pageCount = math.max(1, math.ceil(#report.rows / 4))
     self.footerPage = math.max(1, math.min(self.footerPage, pageCount))
     self:setText(
         "footerTitle",
-        H:tr("yearCaps") .. self.year .. H:tr("totalsScope") .. (self.scope == "farm" and H:tr("farmCaps") or H:tr("contractsCaps"))
+        H:tr("yearCaps") .. self.year .. H:tr("totalsScope") .. H:tr(greenhouse and "greenhousesCaps" or (self.scope == "farm" and "farmCaps" or "contractsCaps"))
     )
     self:setText("footerPages", tostring(self.footerPage) .. " / " .. pageCount)
     for i = 1, 4 do
         local product = report.rows[(self.footerPage - 1) * 4 + i]
         self:setText("yearProduct" .. i, product and self:getProductTitle(product) or "")
-        self:setText("yearArea" .. i, product and HarvestLedger:displayArea(product.areaSqm) or "")
+        self:setText("yearArea" .. i, not greenhouse and product and HarvestLedger:displayArea(product.areaSqm) or "")
         self:setText("yearLiters" .. i, product and HarvestLedger:displayVolume(product.liters) or "")
-        self:setText("yearRate" .. i, product and HarvestLedger:displayRate(product.liters, product.areaSqm) or "")
+        self:setText("yearRate" .. i, not greenhouse and product and HarvestLedger:displayRate(product.liters, product.areaSqm) or "")
     end
     self:setText(
         "yearAll",
         H:tr("allPrefix")
             .. HarvestLedger:displayVolume(report.liters)
-            .. "   |   "
-            .. HarvestLedger:displayArea(report.areaSqm)
-            .. H:tr("byproductSuffix")
+            .. (greenhouse and "" or ("   |   " .. HarvestLedger:displayArea(report.areaSqm) .. H:tr("byproductSuffix")))
     )
 end
 
@@ -305,6 +312,11 @@ function LedgerPage:onContracts()
     self.scope, self.footerPage = "contract", 1
     self:refresh()
 end
+function LedgerPage:onGreenhouses()
+    self.hudFields = false
+    self.scope, self.footerPage = "greenhouse", 1
+    self:refresh()
+end
 function LedgerPage:onFooterPrevious()
     self.footerPage = math.max(1, self.footerPage - 1)
     self:refreshFooter()
@@ -315,6 +327,11 @@ function LedgerPage:onFooterNext()
 end
 function LedgerPage:onSelectField(element)
     local row = self.rows[element.indexInSection]
+    if self.scope == "greenhouse" and not self.hudFields then
+        self.selectedFieldKey = nil
+        self:setText("selectionHint", H:tr("greenhouseHint"))
+        return
+    end
     if self.hudFields then
         self.selectedHudFieldNumber = row and row.hudFieldNumber
         local ignored = self.selectedHudFieldNumber and HarvestLedger:isReadyHudFieldIgnored(self.selectedHudFieldNumber)
@@ -334,7 +351,7 @@ function LedgerPage:onSelectField(element)
     )
 end
 function LedgerPage:onFinishHarvest()
-    if self.hudFields or not self.selectedFieldKey then
+    if self.hudFields or self.scope == "greenhouse" or not self.selectedFieldKey then
         return
     end
     HarvestLedger:requestAction(1, self.scope, self.selectedFieldKey)
@@ -365,6 +382,13 @@ function LedgerPage:populateCellForItemInSection(list, section, index, item)
         end
     end
     text("label", row.label)
+    if self.scope == "greenhouse" and not self.hudFields then
+        text("fieldAcres", "")
+        text("harvestAcres", "")
+        text("liters", row.empty and "" or HarvestLedger:displayVolume(row.liters))
+        text("rate", "")
+        return
+    end
     if self.hudFields then
         text("fieldAcres", "")
         text("harvestAcres", row.empty and "" or (row.ignored and H:tr("hidden") or H:tr("shown")))

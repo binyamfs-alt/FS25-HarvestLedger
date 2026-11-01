@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modDesc descVersion="113">
     <author>BinyamFS</author>
-    <version>1.2.0.9</version>
+    <version>1.2.0.10</version>
     <title>
         <en>Harvest Ledger</en>
         <de>Erntebuch</de>
@@ -10,6 +10,10 @@
         <en><![CDATA[Records crop yields and harvested acreage for each farm and its contracts, including borrowed equipment. Monthly and yearly reports show field size, harvested area, volume and yield per area in the player's General Settings units. Supports additional crop types and harvest outputs. Multiplayer ledgers are maintained on the server; players see their own farm's records. Farm managers can finish harvests and export CSV reports to the server savegame folder. A compact movable Harvest Ready HUD lists only owned fields with harvestable crops, using current field growth states. Use the Harvest HUD toggle in the Harvest Ledger menu. Drag the title bar whenever the mouse cursor is visible; scroll over the list for more rows. The HUD toggle can be assigned in Controls; its default is unassigned. Position and visibility are saved locally in the player profile.
 
 Default mouse control: Left Ctrl+Left Alt+H. Press to show the cursor, drag the HUD title bar, then press again to hide the cursor. Works on foot and in vehicles; reassign it in Controls under Harvest Ledger: Toggle mouse cursor.
+
+Changelog 1.2.0.10 (testing):
+- Manual ready-field distance sorting with Right Shift + H; toggling the HUD clears sorting.
+- Greenhouse production history with monthly and yearly totals.
 
 Changelog 1.2.0.9:
 - Automatically cycle Harvest Ready HUD pages every eight seconds; pause while using the cursor or menus.
@@ -52,6 +56,10 @@ Changelog 1.1.0.0:
 
 Standard-Maussteuerung: Linke Strg+Linke Alt+H. Zum Anzeigen des Mauszeigers drücken, die HUD-Titelleiste ziehen und erneut drücken, um den Mauszeiger auszublenden. Zu Fuß und in Fahrzeugen verfügbar; in der Spielsteuerung unter Harvest Ledger: Mauszeiger umschalten neu belegbar.
 
+Changelog 1.2.0.10 (Testversion):
+- Erntereife Felder mit rechter Umschalttaste + H manuell nach Entfernung sortieren. HUD-Umschaltung setzt Sortierung zurück.
+- Gewächshausproduktion mit Monats- und Jahressummen erfassen.
+
 Changelog 1.2.0.6:
 - HUD-Felder pro Spielstand und Hof ein-/ausblenden; Ernteaufzeichnungen bleiben unverändert.
 
@@ -86,6 +94,7 @@ Changelog 1.1.0.0:
     <actions>
         <action name="HL_MOUSE_TOGGLE" category="ONFOOT VEHICLE"/>
         <action name="HL_READY_TOGGLE" category="ONFOOT VEHICLE"/>
+        <action name="HL_READY_SORT" category="ONFOOT VEHICLE"/>
     </actions>
     <inputBinding>
         <actionBinding action="HL_MOUSE_TOGGLE">
@@ -93,8 +102,40 @@ Changelog 1.1.0.0:
         </actionBinding>
         <actionBinding action="HL_READY_TOGGLE">
         </actionBinding>
+        <actionBinding action="HL_READY_SORT">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_rshift KEY_h" axisComponent="+" neutralInput="0" index="1"/>
+        </actionBinding>
     </inputBinding>
     <l10n>
+        <text name="hl_greenhouses">
+            <en>Greenhouses</en>
+            <de>Gewächshäuser</de>
+        </text>
+        <text name="hl_greenhousesCaps">
+            <en>GREENHOUSES</en>
+            <de>GEWÄCHSHÄUSER</de>
+        </text>
+        <text name="hl_fillGreenhouse">
+            <en>Fill type / Greenhouse</en>
+            <de>Produkt / Gewächshaus</de>
+        </text>
+        <text name="hl_produced">
+            <en>Produced</en>
+            <de>Produziert</de>
+        </text>
+        <text name="hl_emptyGreenhouse">
+            <en>No greenhouse production recorded this month.</en>
+            <de>Diesen Monat keine Gewächshausproduktion erfasst.</de>
+        </text>
+        <text name="hl_greenhouseHint">
+            <en>Actual output recorded since tracking began. Deliveries and pallet collection are excluded. Save the game to keep history.</en>
+            <de>Tatsächliche Produktion seit Beginn der Erfassung. Anlieferungen und Palettenabholung zählen nicht. Zum Behalten Spiel speichern.</de>
+        </text>
+
+        <text name="input_HL_READY_SORT">
+            <en>Harvest Ledger: Sort ready fields by distance</en>
+            <de>Harvest Ledger: Erntereife Felder nach Entfernung sortieren</de>
+        </text>
         <text name="input_HL_MOUSE_TOGGLE">
             <en>Harvest Ledger: Toggle mouse cursor</en>
             <de>Harvest Ledger: Mauszeiger umschalten</de>

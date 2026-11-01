@@ -11,6 +11,7 @@ source(g_currentModDirectory .. "scripts/LedgerStorage.lua")
 source(g_currentModDirectory .. "scripts/LedgerReadyHudSettings.lua")
 source(g_currentModDirectory .. "scripts/LedgerNetwork.lua")
 source(g_currentModDirectory .. "scripts/LedgerHooks.lua")
+source(g_currentModDirectory .. "scripts/LedgerGreenhouse.lua")
 source(g_currentModDirectory .. "scripts/LedgerUnits.lua")
 source(g_currentModDirectory .. "scripts/LedgerReadyHud.lua")
 source(g_currentModDirectory .. "scripts/LedgerPage.lua")
@@ -18,6 +19,7 @@ source(g_currentModDirectory .. "scripts/LedgerPage.lua")
 function HarvestLedger:loadMap()
     local mission = g_currentMission
     self.enabled = true
+    self.greenhouseHooksInstalled, self.greenhouseContext = nil, nil
     self.readOnly = false
     self.warnings, self.disabledObservers = {}, {}
     self.data = LedgerData.new()
@@ -36,6 +38,7 @@ function HarvestLedger:loadMap()
     self.gameYear, self.gameMonth = self:getDate()
     if mission:getIsServer() then
         self:observe("hook-setup", self.installMeasurementHooks)
+        self:installGreenhouseHooks()
     end
     self:setupPage()
     self:setupReadyHud()
@@ -54,6 +57,7 @@ function HarvestLedger:loadMap()
 end
 
 function HarvestLedger:update(dt)
+    self.greenhouseContext = nil
     if not self.enabled then
         return
     end
@@ -110,6 +114,7 @@ function HarvestLedger:deleteMap()
         g_currentMission.harvestLedger = nil
     end
     self:restoreHooks()
+    self.greenhouseHooksInstalled, self.greenhouseContext = nil, nil
     removeConsoleCommand("hlExport")
     removeConsoleCommand("hlFinish")
     self.page = nil
