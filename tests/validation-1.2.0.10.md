@@ -31,3 +31,9 @@ GIANTS FS25 Storage:setFillLevel documentation confirms capacity-clamped storage
 History begins after enabling the new build. Native ProductionPoint/Storage paths are observed; mods that replace that pipeline need compatibility testing. Industrial Greenhouse XML uses the greenhouse placeable type. Greenhouse records use a new scope in ledger schema 3; existing version 1/2 saves remain readable. Older HL builds protect schema 3 from overwrite and cannot display it.
 
 Live testing remains required: Right Shift + H on foot/in vehicles, re-sort after movement, toggle-reset, completed/background scan behavior, long localized rows, menu layout, greenhouse production with storage/selling/distributing modes, save/reload and multiplayer farm switching. Right Shift + H had no exact binding in the saved controls at inspection. No installation, release, tag or main merge performed.
+
+## Initial live check — November 1, 2026
+
+User reports that the greenhouse page looks correct in its empty state. Production clock/totals testing has not started; the user is completing other setup first.
+
+Checked the current game log through its 11:15:44 entry: version 1.2.0.10 is discovered and loaded, Harvest Ledger initializes normally, no Harvest Ledger warnings or greenhouse API-unavailable messages appear, and the log contains zero `Error:` entries. Unrelated warnings include texture/shape limits, unavailable crop types on two implements, and ManureForAll reporting no nearby manure heaps for Cattle Holding and Goat Holding. Empty-page appearance and clean initialization do not yet verify production accounting, sort controls or save/reload behavior.
