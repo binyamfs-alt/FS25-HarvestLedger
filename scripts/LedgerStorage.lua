@@ -61,7 +61,7 @@ function H:loadData()
     end
     local function readLedger()
         local version = getXMLInt(xml, "harvestLedger#version")
-        if version ~= 1 and version ~= 2 and version ~= 3 then
+        if version ~= 1 and version ~= 2 and version ~= 3 and version ~= 4 then
             return nil, "Unsupported ledger version"
         end
         local data = LedgerData.new()
@@ -81,13 +81,13 @@ function H:loadData()
                 end
             end
             event.closed = getXMLBool(xml, key .. "#closed") == true
-            if event.scope == "greenhouse" and (version ~= 3 or not event.closed) then
+            if (event.scope == "greenhouse" or event.scope == "honey") and (version < 3 or (event.scope == "honey" and version < 4) or not event.closed) then
                 return nil, "Invalid greenhouse record"
             end
             event.pfStart, event.pfLast = readPF(xml, key .. ".pfStart"), readPF(xml, key .. ".pfLast")
             if
                 not event.id
-                or (event.scope ~= "farm" and event.scope ~= "contract" and event.scope ~= "greenhouse")
+                or (event.scope ~= "farm" and event.scope ~= "contract" and event.scope ~= "greenhouse" and event.scope ~= "honey")
                 or not event.fieldKey
                 or not event.cropName
             then
@@ -184,7 +184,8 @@ function H:saveData()
     end
     local ledgerVersion = 2
     for _, event in ipairs(self.data.events) do
-        if event.scope == "greenhouse" then ledgerVersion = 3; break end
+        if event.scope == "honey" then ledgerVersion = 4; break end
+        if event.scope == "greenhouse" then ledgerVersion = 3 end
     end
     local temp = path .. ".tmp"
     local xml = createXMLFile("HarvestLedger", temp, "harvestLedger")
@@ -410,7 +411,7 @@ function H:exportCSV(farmId)
     )
     line(yearly, "Scope", "Year", "Fill type", "Harvested acres", "Liters", "L/acre")
     local currentYear = self:getDate()
-    for _, scope in ipairs({ "farm", "contract", "greenhouse" }) do
+    for _, scope in ipairs({ "farm", "contract", "greenhouse", "honey" }) do
         for _, year in ipairs(LedgerData.years(self.data, currentYear, farmId)) do
             for month = 1, 12 do
                 local report = LedgerData.report(self.data, scope, year, month, farmId)

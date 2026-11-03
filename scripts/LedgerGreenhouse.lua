@@ -6,6 +6,7 @@ local unpackValues = unpack or table.unpack
 local function pack(...) return { n = select("#", ...), ... } end
 
 function LedgerData.recordGreenhouse(data, sample)
+    local scope = sample and sample.scope or "greenhouse"
     if not sample or not LedgerData.isNumber(sample.liters) or sample.liters <= 0
         or not LedgerData.isNumber(sample.farmId) or sample.farmId <= 0
         or not sample.buildingKey or not sample.name or not sample.year
@@ -17,18 +18,18 @@ function LedgerData.recordGreenhouse(data, sample)
     if not data.greenhouseIndex then
         data.greenhouseIndex = {}
         for _, event in ipairs(data.events) do
-            if event.scope == "greenhouse" then
-                local key = LedgerData.eventKey("greenhouse", event.fieldKey, event.farmId)
+            if event.scope == "greenhouse" or event.scope == "honey" then
+                local key = LedgerData.eventKey(event.scope, event.fieldKey, event.farmId)
                 data.greenhouseIndex[key] = event
             end
         end
     end
     local fieldKey = sample.buildingKey .. ":" .. sample.name
-    local key = LedgerData.eventKey("greenhouse", fieldKey, sample.farmId)
+    local key = LedgerData.eventKey(scope, fieldKey, sample.farmId)
     local event = data.greenhouseIndex[key]
     if not event then
         event = {
-            id = data.nextId, scope = "greenhouse", farmId = sample.farmId,
+            id = data.nextId, scope = scope, farmId = sample.farmId,
             fieldKey = fieldKey, fieldLabel = sample.label,
             cropName = sample.name, cropTitle = sample.title or sample.name,
             startYear = sample.year, startMonth = sample.month, startDay = sample.day,

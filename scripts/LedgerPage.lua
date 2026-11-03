@@ -26,6 +26,7 @@ function LedgerPage:onGuiSetupFinished()
     self:setText("farmButton", H:tr("farm"))
     self:setText("contractButton", H:tr("contracts"))
     self:setText("greenhouseButton", H:tr("greenhouses"))
+    self:setText("honeyButton", H:tr("honey"))
     self:setText("readyHudButton", H:tr("harvestHud"))
     self:setText("hudFieldsButton", H:tr("hudFields"))
     self:setText("hudFieldToggleButton", H:tr("selectField"))
@@ -75,6 +76,7 @@ function LedgerPage:styleButtons()
         "farmButton",
         "contractButton",
         "greenhouseButton",
+        "honeyButton",
         "readyHudButton",
         "hudFieldsButton",
         "hudFieldToggleButton",
@@ -92,6 +94,7 @@ function LedgerPage:styleButtons()
             local kind = arrows[id] and "buttonArrow" or "buttonWide"
             local active = (id == "farmButton" and self.scope == "farm")
                 or (id == "contractButton" and self.scope == "contract")
+                or (id == "honeyButton" and self.scope == "honey" and not self.hudFields)
                 or (id == "greenhouseButton" and self.scope == "greenhouse" and not self.hudFields)
                 or (id == "readyHudButton" and HarvestLedger.readyHud and HarvestLedger.readyHud.visible)
                 or (id == "hudFieldsButton" and self.hudFields)
@@ -134,7 +137,7 @@ function LedgerPage:getProductTitle(product)
 end
 
 function LedgerPage:refresh()
-    local greenhouse = self.scope == "greenhouse" and not self.hudFields
+    local greenhouse = (self.scope == "greenhouse" or self.scope == "honey") and not self.hudFields
     self.units = HarvestLedger:unitSignature()
     self:setText("readyHudButton", H:tr("harvestHud"))
     self:styleButtons()
@@ -150,7 +153,7 @@ function LedgerPage:refresh()
     end
     local finish = self:getDescendantById("finishButton")
     if finish then finish:setVisible(not self.hudFields and not greenhouse) end
-    self:setText("headlabel", self.hudFields and H:tr("ownedField") or (greenhouse and H:tr("fillGreenhouse") or H:tr("fillField")))
+    self:setText("headlabel", self.hudFields and H:tr("ownedField") or (greenhouse and H:tr(self.scope == "honey" and "fillHoney" or "fillGreenhouse") or H:tr("fillField")))
     self:setText("headfieldAcres", (self.hudFields or greenhouse) and "" or H:tr("fieldSize"))
     self:setText("headharvestAcres", self.hudFields and H:tr("readyHud") or (greenhouse and "" or H:tr("harvestedArea")))
     self:setText("headliters", self.hudFields and "" or (greenhouse and H:tr("produced") or H:tr("yield")))
@@ -190,7 +193,7 @@ function LedgerPage:refresh()
         end
     end
     if #self.rows == 0 then
-        self.rows[1] = { label = H:tr(greenhouse and "emptyGreenhouse" or "emptyMonth"), empty = true }
+        self.rows[1] = { label = H:tr(greenhouse and (self.scope == "honey" and "emptyHoney" or "emptyGreenhouse") or "emptyMonth"), empty = true }
     end
     self:setText(
         "monthTotal",
@@ -198,7 +201,7 @@ function LedgerPage:refresh()
             .. HarvestLedger:displayVolume(report.liters)
             .. (greenhouse and "" or ("   |   " .. HarvestLedger:displayArea(report.areaSqm) .. H:tr("harvestedSuffix")))
     )
-    self:setText("selectionHint", H:tr(greenhouse and "greenhouseHint" or "finishHint"))
+    self:setText("selectionHint", H:tr(greenhouse and (self.scope == "honey" and "honeyHint" or "greenhouseHint") or "finishHint"))
     self.list:reloadData()
     self:refreshFooter()
 end
@@ -233,7 +236,7 @@ function LedgerPage:refreshHudFields()
 end
 
 function LedgerPage:onHudFields()
-    if self.scope == "greenhouse" then self.scope = "farm" end
+    if (self.scope == "greenhouse" or self.scope == "honey") then self.scope = "farm" end
     self.hudFields = not self.hudFields
     self:refresh()
     FocusManager:setFocus(self.list)
@@ -248,13 +251,13 @@ function LedgerPage:onToggleHudField()
 end
 
 function LedgerPage:refreshFooter()
-    local greenhouse = self.scope == "greenhouse" and not self.hudFields
+    local greenhouse = (self.scope == "greenhouse" or self.scope == "honey") and not self.hudFields
     local report = LedgerData.report(HarvestLedger.data, self.scope, self.year, nil, HarvestLedger.viewFarmId)
     local pageCount = math.max(1, math.ceil(#report.rows / 4))
     self.footerPage = math.max(1, math.min(self.footerPage, pageCount))
     self:setText(
         "footerTitle",
-        H:tr("yearCaps") .. self.year .. H:tr("totalsScope") .. H:tr(greenhouse and "greenhousesCaps" or (self.scope == "farm" and "farmCaps" or "contractsCaps"))
+        H:tr("yearCaps") .. self.year .. H:tr("totalsScope") .. H:tr(greenhouse and (self.scope == "honey" and "honeyCaps" or "greenhousesCaps") or (self.scope == "farm" and "farmCaps" or "contractsCaps"))
     )
     self:setText("footerPages", tostring(self.footerPage) .. " / " .. pageCount)
     for i = 1, 4 do
@@ -327,9 +330,9 @@ function LedgerPage:onFooterNext()
 end
 function LedgerPage:onSelectField(element)
     local row = self.rows[element.indexInSection]
-    if self.scope == "greenhouse" and not self.hudFields then
+    if (self.scope == "greenhouse" or self.scope == "honey") and not self.hudFields then
         self.selectedFieldKey = nil
-        self:setText("selectionHint", H:tr("greenhouseHint"))
+        self:setText("selectionHint", H:tr(self.scope == "honey" and "honeyHint" or "greenhouseHint"))
         return
     end
     if self.hudFields then
@@ -351,7 +354,7 @@ function LedgerPage:onSelectField(element)
     )
 end
 function LedgerPage:onFinishHarvest()
-    if self.hudFields or self.scope == "greenhouse" or not self.selectedFieldKey then
+    if self.hudFields or (self.scope == "greenhouse" or self.scope == "honey") or not self.selectedFieldKey then
         return
     end
     HarvestLedger:requestAction(1, self.scope, self.selectedFieldKey)
@@ -382,7 +385,7 @@ function LedgerPage:populateCellForItemInSection(list, section, index, item)
         end
     end
     text("label", row.label)
-    if self.scope == "greenhouse" and not self.hudFields then
+    if (self.scope == "greenhouse" or self.scope == "honey") and not self.hudFields then
         text("fieldAcres", "")
         text("harvestAcres", "")
         text("liters", row.empty and "" or HarvestLedger:displayVolume(row.liters))
@@ -495,4 +498,10 @@ end
 function LedgerPage:onFrameClose()
     self.ledgerOpen = false
     LedgerPage:superClass().onFrameClose(self)
+end
+
+function LedgerPage:onHoney()
+    self.hudFields = false
+    self.scope, self.footerPage = "honey", 1
+    self:refresh()
 end

@@ -1,6 +1,11 @@
 -- Display translations only: saved measurements, field labels and CSV schemas stay stable.
 local H = HarvestLedger
 local english = {
+    ["honey"] = "Honey",
+    ["honeyCaps"] = "HONEY",
+    ["fillHoney"] = "Honey / Farmland",
+    ["emptyHoney"] = "No honey production recorded this month.",
+    ["honeyHint"] = "Honey collected from hives, grouped by their farmland. Existing pallets are excluded. Save the game to keep history.",
     ["greenhouses"] = "Greenhouses",
     ["greenhousesCaps"] = "GREENHOUSES",
     ["fillGreenhouse"] = "Fill type / Greenhouse",

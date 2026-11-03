@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modDesc descVersion="113">
     <author>BinyamFS</author>
-    <version>1.2.0.10</version>
+    <version>1.2.0.11</version>
     <title>
         <en>Harvest Ledger</en>
         <de>Erntebuch</de>
@@ -452,6 +452,11 @@ Changelog 1.1.0.0:
             <en>Unmapped area / parcel %s</en>
             <de>Nicht zugeordnete Fläche / Parzelle %s</de>
         </text>
+        <text name="hl_honey"><en>Honey</en><de>Honig</de></text>
+        <text name="hl_honeyCaps"><en>HONEY</en><de>HONIG</de></text>
+        <text name="hl_fillHoney"><en>Honey / Farmland</en><de>Honig / Grundstück</de></text>
+        <text name="hl_emptyHoney"><en>No honey production recorded this month.</en><de>Diesen Monat wurde noch keine Honigproduktion erfasst.</de></text>
+        <text name="hl_honeyHint"><en>Honey collected from hives, grouped by their farmland. Existing pallets are excluded. Save the game to keep history.</en><de>Honig aus Bienenstöcken, nach Grundstück gruppiert. Vorhandene Paletten sind ausgeschlossen. Spiel speichern, um den Verlauf zu behalten.</de></text>
     </l10n>
     <extraSourceFiles>
         <sourceFile filename="main.lua"/>

@@ -127,6 +127,7 @@ local function addProduct(report, event, name, entry)
         row = {
             fieldKey = event.fieldKey,
             fieldNumber = event.fieldNumber,
+            farmlandSortId = event.scope == "honey" and tonumber(event.fieldKey:match("^farmland:(%d+):")) or nil,
             label = event.fieldLabel,
             cropName = event.cropName,
             cropTitle = event.cropTitle,
@@ -178,6 +179,9 @@ function LedgerData.report(data, scope, year, month, farmId)
             product.rows[#product.rows + 1] = row
         end
         table.sort(product.rows, function(a, b)
+            if a.farmlandSortId and b.farmlandSortId and a.farmlandSortId ~= b.farmlandSortId then
+                return a.farmlandSortId < b.farmlandSortId
+            end
             if a.fieldNumber and b.fieldNumber and a.fieldNumber ~= b.fieldNumber then
                 return a.fieldNumber < b.fieldNumber
             end
