@@ -108,11 +108,12 @@ function D:install()
         end
     end)
     self:openSessionLog()
-    self:writeLog('READY v1.0.0.6. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
+    self:writeLog('READY v1.0.0.7. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
     addConsoleCommand('hlDiagDump','Dump harvest diagnostic totals','dump',self)
     addConsoleCommand('hlGrowthDump','Read-only growth system snapshot','dumpGrowth',self)
     self.growthPeriod=g_currentMission.environment and g_currentMission.environment.currentPeriod
     safe(self.dumpGrowth,self)
+    safe(self.installGrowthTrace,self)
     return true
 end
 function D:ledgerTotals(r)
@@ -147,6 +148,35 @@ function D:dump()
     end
     return 'Diagnostic snapshot written to '..tostring(self.logPath or 'log.txt')
 end
+function D:installGrowthTrace()
+    local gs=g_currentMission.growthSystem
+    if not gs then return end
+    for _,name in ipairs({'triggerGrowth','startEngineGrowth','setMonthEngineState'}) do
+        local method=name
+        self:writeLog('GROWTH TRACE method %s available=%s',method,tostring(type(gs[method])=='function'))
+        self:wrap(gs,method,function(original)
+            return function(system,...)
+                local args=pack(...)
+                safe(D.writeLog,D,'GROWTH TRACE ENTER %s periodArg=%s queue=%s',method,tostring(args[1]),tostring(#(system.growthQueue or {})))
+                local result=pack(original(system,...))
+                safe(D.writeLog,D,'GROWTH TRACE EXIT %s queue=%s',method,tostring(#(system.growthQueue or {})))
+                return unpackArgs(result,1,result.n)
+            end
+        end)
+    end
+    if g_messageCenter and MessageType then
+        for _,name in ipairs({'PERIOD_CHANGED','DAY_CHANGED','FINISHED_GROWTH_PERIOD'}) do
+            local event=MessageType[name]
+            if event then
+                local label=name
+                g_messageCenter:subscribe(event,function(_,a,b)
+                    safe(D.writeLog,D,'GROWTH TRACE EVENT %s first=%s second=%s',label,tostring(a),tostring(b))
+                end,self)
+            end
+        end
+    end
+end
+
 function D:dumpGrowth()
     local mission=g_currentMission
     if not mission then return 'No loaded mission' end
@@ -182,7 +212,9 @@ function D:dumpGrowth()
         ..' modeSetting='..tostring(mission.missionInfo and mission.missionInfo.growthMode))
     inspect('growthSystem',gs,0)
     if gs then
-        inspect('updaters',gs.fieldCropsUpdaters,2)
+        for name,entry in pairs(gs.fieldCropsUpdaters or {}) do
+            inspect('updaters.'..tostring(name),entry,0)
+        end
         inspect('queue',gs.growthQueue,2)
     end
     -- Never follow references to mission, environment, vehicles or other systems.
@@ -288,6 +320,7 @@ function D:deleteMap()
         local h=self.hooks[i]
         if h.object[h.name]==h.replacement then h.object[h.name]=h.original end
     end
+    if g_messageCenter then g_messageCenter:unsubscribeAll(self) end
     self.installed=false
 end
 addModEventListener(D)
