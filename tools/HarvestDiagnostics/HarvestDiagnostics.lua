@@ -108,12 +108,8 @@ function D:install()
         end
     end)
     self:openSessionLog()
-    self:writeLog('READY v1.0.0.7. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
+    self:writeLog('READY v1.0.0.8. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
     addConsoleCommand('hlDiagDump','Dump harvest diagnostic totals','dump',self)
-    addConsoleCommand('hlGrowthDump','Read-only growth system snapshot','dumpGrowth',self)
-    self.growthPeriod=g_currentMission.environment and g_currentMission.environment.currentPeriod
-    safe(self.dumpGrowth,self)
-    safe(self.installGrowthTrace,self)
     return true
 end
 function D:ledgerTotals(r)
@@ -148,96 +144,7 @@ function D:dump()
     end
     return 'Diagnostic snapshot written to '..tostring(self.logPath or 'log.txt')
 end
-function D:installGrowthTrace()
-    local gs=g_currentMission.growthSystem
-    if not gs then return end
-    for _,name in ipairs({'triggerGrowth','startEngineGrowth','setMonthEngineState'}) do
-        local method=name
-        self:writeLog('GROWTH TRACE method %s available=%s',method,tostring(type(gs[method])=='function'))
-        self:wrap(gs,method,function(original)
-            return function(system,...)
-                local args=pack(...)
-                safe(D.writeLog,D,'GROWTH TRACE ENTER %s periodArg=%s queue=%s',method,tostring(args[1]),tostring(#(system.growthQueue or {})))
-                local result=pack(original(system,...))
-                safe(D.writeLog,D,'GROWTH TRACE EXIT %s queue=%s',method,tostring(#(system.growthQueue or {})))
-                return unpackArgs(result,1,result.n)
-            end
-        end)
-    end
-    if g_messageCenter and MessageType then
-        for _,name in ipairs({'PERIOD_CHANGED','DAY_CHANGED','FINISHED_GROWTH_PERIOD'}) do
-            local event=MessageType[name]
-            if event then
-                local label=name
-                g_messageCenter:subscribe(event,function(_,a,b)
-                    safe(D.writeLog,D,'GROWTH TRACE EVENT %s first=%s second=%s',label,tostring(a),tostring(b))
-                end,self)
-            end
-        end
-    end
-end
-
-function D:dumpGrowth()
-    local mission=g_currentMission
-    if not mission then return 'No loaded mission' end
-    local lines, seen = {}, {}
-    local function emit(text)
-        if #lines < 250 then lines[#lines+1]='GROWTH '..text end
-    end
-    local function inspect(label, object, depth)
-        if #lines>=250 then return end
-        emit(label..' type='..type(object))
-        if type(object)~='table' or seen[object] then return end
-        seen[object]=true
-        local keys={}
-        for key in pairs(object) do
-            if #keys>=40 then break end
-            keys[#keys+1]=key
-        end
-        table.sort(keys,function(a,b)return tostring(a)<tostring(b) end)
-        for _,key in ipairs(keys) do
-            if #lines>=250 then break end
-            local value=object[key]
-            local kind=type(value)
-            if kind=='number' or kind=='boolean' or kind=='string' then
-                emit(label..'.'..tostring(key)..'='..tostring(value))
-            elseif kind=='table' and depth>0 and type(key)=='number' then
-                inspect(label..'.'..key,value,depth-1)
-            end
-        end
-    end
-    local env=mission.environment or {}
-    local gs=mission.growthSystem
-    emit('SNAPSHOT period='..tostring(env.currentPeriod)..' day='..tostring(env.currentDay)
-        ..' modeSetting='..tostring(mission.missionInfo and mission.missionInfo.growthMode))
-    inspect('growthSystem',gs,0)
-    if gs then
-        for name,entry in pairs(gs.fieldCropsUpdaters or {}) do
-            inspect('updaters.'..tostring(name),entry,0)
-        end
-        inspect('queue',gs.growthQueue,2)
-    end
-    -- Never follow references to mission, environment, vehicles or other systems.
-    if g_fruitTypeManager then
-        for _,fruit in pairs(g_fruitTypeManager.fruitTypes or {}) do
-            if fruit.name=='HEMP' or fruit.name=='CLOVER' then
-                local seasonal=fruit.growthDataSeasonal
-                inspect('seasonal.'..fruit.name,seasonal,0)
-                if type(seasonal)=='table' then
-                    for key,value in pairs(seasonal) do
-                        if type(value)=='table' and (type(key)=='number' or key=='periods') then
-                            inspect('seasonal.'..fruit.name..'.'..tostring(key),value,3)
-                        end
-                    end
-                end
-            end
-        end
-    end
-    self:writeLog('%s',table.concat(lines,'\n'))
-    return 'Growth snapshot written to log.txt'
-end
-
-function D:loadMap() self.growthPeriod=nil; self.logLines={}; self.logPath=nil; self.rows={}; self.hooks={}; self.timer=0; self.installed=false; self.vehicles=setmetatable({}, {__mode='k'}) end
+function D:loadMap() self.logLines={}; self.logPath=nil; self.rows={}; self.hooks={}; self.timer=0; self.installed=false; self.vehicles=setmetatable({}, {__mode='k'}) end
 function D:hookVehicle(vehicle)
     local h=g_currentMission.harvestLedger
     local state=self.vehicles[vehicle]
@@ -302,11 +209,6 @@ end
 function D:update(dt)
     if not g_currentMission or not g_currentMission:getIsServer() then return end
     if not self.installed then self.installed=self:install(); return end
-    local period=g_currentMission.environment and g_currentMission.environment.currentPeriod
-    if self.growthPeriod~=period then
-        self.growthPeriod=period
-        safe(self.dumpGrowth,self)
-    end
     local system=g_currentMission.vehicleSystem
     for _,vehicle in pairs(system and system.vehicles or {}) do
         self:hookVehicle(vehicle)
@@ -315,12 +217,11 @@ function D:update(dt)
     if self.timer>=60000 then self.timer=0; self:dump() end
 end
 function D:deleteMap()
-    if self.installed then safe(self.dump,self);safe(self.writeLog,self,'SESSION END'); removeConsoleCommand('hlDiagDump'); removeConsoleCommand('hlGrowthDump') end
+    if self.installed then safe(self.dump,self);safe(self.writeLog,self,'SESSION END'); removeConsoleCommand('hlDiagDump') end
     for i=#self.hooks,1,-1 do
         local h=self.hooks[i]
         if h.object[h.name]==h.replacement then h.object[h.name]=h.original end
     end
-    if g_messageCenter then g_messageCenter:unsubscribeAll(self) end
     self.installed=false
 end
 addModEventListener(D)

@@ -1,10 +1,10 @@
-# Harvest Diagnostics 1.0.0.3
+# Harvest Diagnostics 1.0.0.8
 
 Optional troubleshooting helper for Harvest Ledger. Records production, ground deposition and forage pickup telemetry without changing measured amounts, return values or work areas. Requires Harvest Ledger; logging runs on the server (including singleplayer).
 
 ## Download and installation
 
-[Download FS25_zz_HarvestDiagnostics.zip](https://github.com/binyamfs-alt/FS25-HarvestLedger/raw/refs/heads/main/builds/FS25_zz_HarvestDiagnostics.zip)
+[Download FS25_zz_HarvestDiagnostics.zip](https://github.com/binyamfs-alt/FS25-HarvestLedger/raw/refs/heads/tools/clean-harvest-diagnostics/builds/FS25_zz_HarvestDiagnostics.zip)
 
 With the game closed, place the original ZIP in your active Farming Simulator 25 mods folder alongside Harvest Ledger, keeping its filename unchanged. Enable both mods for the save. Install only one copy of this helper. Disable it after troubleshooting if you no longer need diagnostic logging.
 
@@ -20,6 +20,8 @@ Session counters reset on reload; ledger totals cover the whole month. In-progre
 
 ## Source and integrity
 
-The helper's three original files are preserved in this folder. Its original Alma ZIP is stored separately in `builds/`; it is not included in the normal Harvest Ledger mod ZIP.
+Version 1.0.0.8 removes the temporary growth snapshots and transition traces.
+Original harvest production, deposition and pickup telemetry is retained.
+This helper is distributed separately from the Harvest Ledger mod.
 
-SHA-256: `69247BBB77CC524DC7773C973A3BEAFCEC92D33293318F60294CB960A339F9EA`
+SHA-256: `e25dd9e63e17fbf5fb8105fbc7d4473d45c9cd8970510561fe0937257198333b`
