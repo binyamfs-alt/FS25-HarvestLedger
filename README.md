@@ -1,4 +1,4 @@
-# Harvest Ledger 1.3.0.0
+# Harvest Ledger 1.3.0.1
 
 ## 1.3.0.0
 
@@ -179,3 +179,6 @@ sorted by farmland number. Unmapped land has a separate row. Year totals and CSV
 exports include honey. Existing pallets are not counted; history starts with this
 build and persists when you save. Ledger schema 4 remains readable by this build;
 older builds cannot read honey history and protect it from overwrite.
+
+
+Testing 1.3.0.1: all nine action buttons fit on one top row with 166px widths and 12px gaps.

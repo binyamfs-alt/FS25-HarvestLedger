@@ -33,7 +33,7 @@
         <textAlignment value="right"/>
     </Profile>
     <Profile name="hlButton" extends="buttonBase" with="anchorBottomLeft">
-        <size value="180px 38px"/>
+        <size value="166px 38px"/>
         <textSize value="17px"/>
         <textColor value="1 1 1 1"/>
         <textFocusedColor value="1 1 1 1"/>
