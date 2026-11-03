@@ -165,7 +165,7 @@ Version 1.2.0.9 testing build: restore separators stripped from XML translations
 Harvest Ready now automatically cycles through sets of ten ready fields every eight seconds, including a partially filled last set. Background field scans preserve the cycle. Cursor/menu interaction pauses it. Existing farm exclusions and translations are retained.
 
 
-### Honey production (testing 1.2.0.11)
+### Honey production (testing 1.2.0.12)
 
 The Honey page records native beehive output as it is collected for the farm's
 honey pallet spawn point. Monthly rows combine hives standing on the same farmland,
