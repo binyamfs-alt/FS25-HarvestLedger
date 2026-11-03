@@ -1,6 +1,6 @@
-# Harvest Ledger 1.2.0.10
+# Harvest Ledger 1.3.0.0
 
-## 1.2.0.10 testing build
+## 1.3.0.0
 
 ### Manual Harvest Ready distance sorting
 
@@ -18,9 +18,15 @@ Recording starts when this build is enabled; existing stock is not historical pr
 
 History remains with the farm that produced it, including after ownership transfers or selling the greenhouse. Save the game to keep it. Existing farm and contract harvest reports stay separate. Greenhouse entries use the `greenhouse` scope in the existing event/monthly/yearly CSV exports; their field-label column identifies the greenhouse, and harvested area is zero with no yield-per-area value. Multiplayer snapshots retain the existing farm authorization and filtering.
 
-Existing version 1/2 ledger saves remain readable. A save containing greenhouse history uses ledger schema 3, preserving the existing record layout with a new scope. **Older Harvest Ledger builds cannot read schema 3 and will protect the ledger from overwrite.** Keep the save backup when testing or rolling back. Normal saves retain the existing `.bak` and staging behavior. All multiplayer participants must use the same testing build.
+Existing ledger schemas 1–3 remain readable. Honey history uses schema 4;
+older builds protect unsupported ledger files from overwrite. All multiplayer
+participants must use the same version.
 
-Automated tests use emulated engine APIs; live single-player and multiplayer verification of these new features remains pending. This testing build has not been merged or released.
+Live single-player screenshots confirm honey output grouped by farmland and
+populated greenhouse reports with monthly/yearly totals. Greenhouse 1's lower
+output reflects productions being disabled earlier. Save/reload and multiplayer
+accounting have automated API coverage; live multiplayer testing remains pending.
+
 
 ## Harvest Ready HUD
 
@@ -165,7 +171,7 @@ Version 1.2.0.9 testing build: restore separators stripped from XML translations
 Harvest Ready now automatically cycles through sets of ten ready fields every eight seconds, including a partially filled last set. Background field scans preserve the cycle. Cursor/menu interaction pauses it. Existing farm exclusions and translations are retained.
 
 
-### Honey production (testing 1.2.0.12)
+### Honey production (1.3.0.0)
 
 The Honey page records native beehive output as it is collected for the farm's
 honey pallet spawn point. Monthly rows combine hives standing on the same farmland,
