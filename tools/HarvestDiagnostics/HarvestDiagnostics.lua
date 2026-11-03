@@ -108,9 +108,10 @@ function D:install()
         end
     end)
     self:openSessionLog()
-    self:writeLog('READY v1.0.0.5. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
+    self:writeLog('READY v1.0.0.6. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
     addConsoleCommand('hlDiagDump','Dump harvest diagnostic totals','dump',self)
     addConsoleCommand('hlGrowthDump','Read-only growth system snapshot','dumpGrowth',self)
+    self.growthPeriod=g_currentMission.environment and g_currentMission.environment.currentPeriod
     safe(self.dumpGrowth,self)
     return true
 end
@@ -149,36 +150,58 @@ end
 function D:dumpGrowth()
     local mission=g_currentMission
     if not mission then return 'No loaded mission' end
-    local env=mission.environment or {}
-    self:writeLog('GROWTH SNAPSHOT | period=%s day=%s time=%s modeSetting=%s',
-        tostring(env.currentPeriod),tostring(env.currentDay),tostring(env.dayTime),
-        tostring(mission.missionInfo and mission.missionInfo.growthMode))
+    local lines, seen = {}, {}
+    local function emit(text)
+        if #lines < 250 then lines[#lines+1]='GROWTH '..text end
+    end
     local function inspect(label, object, depth)
-        self:writeLog('GROWTH %s type=%s',label,type(object))
-        if type(object)~='table' then return end
+        if #lines>=250 then return end
+        emit(label..' type='..type(object))
+        if type(object)~='table' or seen[object] then return end
+        seen[object]=true
         local keys={}
-        for key in pairs(object) do keys[#keys+1]=key end
+        for key in pairs(object) do
+            if #keys>=40 then break end
+            keys[#keys+1]=key
+        end
         table.sort(keys,function(a,b)return tostring(a)<tostring(b) end)
-        for i=1,math.min(#keys,100) do
-            local key=keys[i]
+        for _,key in ipairs(keys) do
+            if #lines>=250 then break end
             local value=object[key]
             local kind=type(value)
-            if kind=='number' or kind=='boolean' or kind=='string' or kind=='function' then
-                self:writeLog('GROWTH %s.%s=%s',label,tostring(key),kind=='function' and '[function]' or tostring(value))
-            elseif depth>0 and kind=='table' then
-                inspect(label..'.'..tostring(key),value,depth-1)
+            if kind=='number' or kind=='boolean' or kind=='string' then
+                emit(label..'.'..tostring(key)..'='..tostring(value))
+            elseif kind=='table' and depth>0 and type(key)=='number' then
+                inspect(label..'.'..key,value,depth-1)
             end
         end
     end
-    inspect('growthSystem',mission.growthSystem,4)
-    inspect('foliageSystem',mission.foliageSystem,1)
+    local env=mission.environment or {}
+    local gs=mission.growthSystem
+    emit('SNAPSHOT period='..tostring(env.currentPeriod)..' day='..tostring(env.currentDay)
+        ..' modeSetting='..tostring(mission.missionInfo and mission.missionInfo.growthMode))
+    inspect('growthSystem',gs,0)
+    if gs then
+        inspect('updaters',gs.fieldCropsUpdaters,2)
+        inspect('queue',gs.growthQueue,2)
+    end
+    -- Never follow references to mission, environment, vehicles or other systems.
     if g_fruitTypeManager then
         for _,fruit in pairs(g_fruitTypeManager.fruitTypes or {}) do
             if fruit.name=='HEMP' or fruit.name=='CLOVER' then
-                inspect('seasonal.'..fruit.name,fruit.growthDataSeasonal,5)
+                local seasonal=fruit.growthDataSeasonal
+                inspect('seasonal.'..fruit.name,seasonal,0)
+                if type(seasonal)=='table' then
+                    for key,value in pairs(seasonal) do
+                        if type(value)=='table' and (type(key)=='number' or key=='periods') then
+                            inspect('seasonal.'..fruit.name..'.'..tostring(key),value,3)
+                        end
+                    end
+                end
             end
         end
     end
+    self:writeLog('%s',table.concat(lines,'\n'))
     return 'Growth snapshot written to log.txt'
 end
 
