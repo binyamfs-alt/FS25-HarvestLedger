@@ -108,8 +108,10 @@ function D:install()
         end
     end)
     self:openSessionLog()
-    self:writeLog('READY v1.0.0.3. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
+    self:writeLog('READY v1.0.0.4. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
     addConsoleCommand('hlDiagDump','Dump harvest diagnostic totals','dump',self)
+    addConsoleCommand('hlGrowthDump','Read-only growth system snapshot','dumpGrowth',self)
+    safe(self.dumpGrowth,self)
     return true
 end
 function D:ledgerTotals(r)
@@ -144,7 +146,41 @@ function D:dump()
     end
     return 'Diagnostic snapshot written to '..tostring(self.logPath or 'log.txt')
 end
-function D:loadMap() self.logLines={}; self.logPath=nil; self.rows={}; self.hooks={}; self.timer=0; self.installed=false; self.vehicles=setmetatable({}, {__mode='k'}) end
+function D:dumpGrowth()
+    local mission=g_currentMission
+    if not mission then return 'No loaded mission' end
+    local env=mission.environment or {}
+    self:writeLog('GROWTH SNAPSHOT | period=%s day=%s time=%s modeSetting=%s',
+        tostring(env.currentPeriod),tostring(env.currentDay),tostring(env.dayTime),
+        tostring(mission.missionInfo and mission.missionInfo.growthMode))
+    local function inspect(label, object, depth)
+        self:writeLog('GROWTH %s type=%s',label,type(object))
+        if type(object)~='table' then return end
+        local keys={}
+        for key in pairs(object) do keys[#keys+1]=key end
+        table.sort(keys,function(a,b)return tostring(a)<tostring(b) end)
+        for i=1,math.min(#keys,100) do
+            local key=keys[i]
+            local value=object[key]
+            local kind=type(value)
+            if kind=='number' or kind=='boolean' or kind=='string' or kind=='function' then
+                self:writeLog('GROWTH %s.%s=%s',label,tostring(key),kind=='function' and '[function]' or tostring(value))
+            elseif depth>0 and kind=='table' and (tostring(key):lower():find('updat') or tostring(key):lower():find('growth')) then
+                inspect(label..'.'..tostring(key),value,depth-1)
+            end
+        end
+    end
+    inspect('growthSystem',mission.growthSystem,1)
+    inspect('foliageSystem',mission.foliageSystem,1)
+    if g_fruitTypeManager then
+        for _,fruit in pairs(g_fruitTypeManager.fruitTypes or {}) do
+            if fruit.name=='HEMP' or fruit.name=='CLOVER' then inspect('fruit.'..fruit.name,fruit,1) end
+        end
+    end
+    return 'Growth snapshot written to log.txt'
+end
+
+function D:loadMap() self.growthPeriod=nil; self.logLines={}; self.logPath=nil; self.rows={}; self.hooks={}; self.timer=0; self.installed=false; self.vehicles=setmetatable({}, {__mode='k'}) end
 function D:hookVehicle(vehicle)
     local h=g_currentMission.harvestLedger
     local state=self.vehicles[vehicle]
@@ -209,6 +245,11 @@ end
 function D:update(dt)
     if not g_currentMission or not g_currentMission:getIsServer() then return end
     if not self.installed then self.installed=self:install(); return end
+    local period=g_currentMission.environment and g_currentMission.environment.currentPeriod
+    if self.growthPeriod~=period then
+        self.growthPeriod=period
+        safe(self.dumpGrowth,self)
+    end
     local system=g_currentMission.vehicleSystem
     for _,vehicle in pairs(system and system.vehicles or {}) do
         self:hookVehicle(vehicle)
@@ -217,7 +258,7 @@ function D:update(dt)
     if self.timer>=60000 then self.timer=0; self:dump() end
 end
 function D:deleteMap()
-    if self.installed then safe(self.dump,self);safe(self.writeLog,self,'SESSION END'); removeConsoleCommand('hlDiagDump') end
+    if self.installed then safe(self.dump,self);safe(self.writeLog,self,'SESSION END'); removeConsoleCommand('hlDiagDump'); removeConsoleCommand('hlGrowthDump') end
     for i=#self.hooks,1,-1 do
         local h=self.hooks[i]
         if h.object[h.name]==h.replacement then h.object[h.name]=h.original end
