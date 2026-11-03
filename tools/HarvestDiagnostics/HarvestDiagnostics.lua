@@ -108,7 +108,7 @@ function D:install()
         end
     end)
     self:openSessionLog()
-    self:writeLog('READY v1.0.0.4. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
+    self:writeLog('READY v1.0.0.5. SESSION totals reset on reload. hlDiagDump prints cumulative snapshots. Pickup-only sessions require the full field pickup to make a valid comparison. No bale or unloading measurement.')
     addConsoleCommand('hlDiagDump','Dump harvest diagnostic totals','dump',self)
     addConsoleCommand('hlGrowthDump','Read-only growth system snapshot','dumpGrowth',self)
     safe(self.dumpGrowth,self)
@@ -165,16 +165,18 @@ function D:dumpGrowth()
             local kind=type(value)
             if kind=='number' or kind=='boolean' or kind=='string' or kind=='function' then
                 self:writeLog('GROWTH %s.%s=%s',label,tostring(key),kind=='function' and '[function]' or tostring(value))
-            elseif depth>0 and kind=='table' and (tostring(key):lower():find('updat') or tostring(key):lower():find('growth')) then
+            elseif depth>0 and kind=='table' then
                 inspect(label..'.'..tostring(key),value,depth-1)
             end
         end
     end
-    inspect('growthSystem',mission.growthSystem,1)
+    inspect('growthSystem',mission.growthSystem,4)
     inspect('foliageSystem',mission.foliageSystem,1)
     if g_fruitTypeManager then
         for _,fruit in pairs(g_fruitTypeManager.fruitTypes or {}) do
-            if fruit.name=='HEMP' or fruit.name=='CLOVER' then inspect('fruit.'..fruit.name,fruit,1) end
+            if fruit.name=='HEMP' or fruit.name=='CLOVER' then
+                inspect('seasonal.'..fruit.name,fruit.growthDataSeasonal,5)
+            end
         end
     end
     return 'Growth snapshot written to log.txt'
